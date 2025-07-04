@@ -98,9 +98,9 @@ class Game:
         for player in self.players:
             vessel_pos = self.board.vessel_positions.get(player.id)
             if vessel_pos and vessel_pos.x in sunlit_positions:
-                # Each sunlit position gives 2 electricity
-                player.add_electricity(2)
-                electricity_generated[player.name] = 2
+                # Each sunlit position gives 6 electricity
+                player.add_electricity(6)
+                electricity_generated[player.name] = 6
             else:
                 electricity_generated[player.name] = 0
         
@@ -231,10 +231,6 @@ class Game:
         
         # Vessel movement (free)
         valid_actions.append("MOVE_VESSEL")
-        
-        # Diesel engine
-        if player.cargo_bay.has(ResourceType.HYDROCARBON):
-            valid_actions.append("USE_DIESEL")
         
         return valid_actions
     

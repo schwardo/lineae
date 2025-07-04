@@ -45,23 +45,38 @@ def display_board(game: Game) -> None:
     # Create board grid
     grid = []
     
-    # Add header row with sunlight/Jupiter
-    header = []
+    # Add header row with column numbers
+    header = ["  "]  # Space for row labels
     for x in range(BOARD_WIDTH):
-        if x >= BOARD_WIDTH - 2 - board.jupiter_position:
-            header.append(f"[bold yellow]{SYMBOLS['jupiter']}[/]")
-        elif board.atmosphere.get(x, 0) > 0:
-            header.append(f"[magenta]●[/]")
-        else:
-            header.append(f"[yellow]{SYMBOLS['sun']}[/]")
+        header.append(f" {x} ")
     grid.append(header)
     
+    # Add separator after column numbers
+    separator = ["--"]
+    for _ in range(BOARD_WIDTH):
+        separator.append("---")
+    grid.append(separator)
+    
+    # Add header row with sunlight/Jupiter
+    sun_row = ["  "]  # Space for row labels
+    for x in range(BOARD_WIDTH):
+        if x >= BOARD_WIDTH - 2 - board.jupiter_position:
+            sun_row.append(f"[bold yellow]{SYMBOLS['jupiter']}[/]")
+        elif board.atmosphere.get(x, 0) > 0:
+            sun_row.append(f"[magenta]●[/]")
+        else:
+            sun_row.append(f"[yellow]{SYMBOLS['sun']}[/]")
+    grid.append(sun_row)
+    
     # Add separator
-    grid.append(["-" * 3 for _ in range(BOARD_WIDTH)])
+    separator = ["--"]
+    for _ in range(BOARD_WIDTH):
+        separator.append("---")
+    grid.append(separator)
     
     # Add ocean rows
     for y in range(BOARD_HEIGHT):
-        row = []
+        row = [f"{y} "]  # Add row number
         for x in range(BOARD_WIDTH):
             pos = board.ocean[Position(x, y)]
             cell = ""
@@ -93,11 +108,19 @@ def display_board(game: Game) -> None:
                 else:
                     cell += f"[red]{SYMBOLS['lock_closed']}[/]"
             
-            row.append(cell if cell else "   ")
+            # Pad cell to consistent width and add borders
+            cell_content = cell if cell else "   "
+            row.append(cell_content)
         grid.append(row)
     
+    # Add separator before deposits
+    separator = ["--"]
+    for _ in range(BOARD_WIDTH):
+        separator.append("---")
+    grid.append(separator)
+    
     # Add deposits at bottom
-    deposit_row = []
+    deposit_row = ["  "]  # Space for row labels
     for i in range(BOARD_WIDTH):
         deposit_idx = i // 2
         if i % 2 == 0 and deposit_idx < len(board.deposits):
@@ -112,8 +135,8 @@ def display_board(game: Game) -> None:
     grid.append(deposit_row)
     
     # Create table
-    table = Table(show_header=False, show_edge=False, padding=0)
-    for _ in range(BOARD_WIDTH):
+    table = Table(show_header=False, show_edge=True, padding=0, box_chars={"mid": "-"})
+    for _ in range(BOARD_WIDTH + 1):  # +1 for row labels
         table.add_column(width=3)
     
     for row in grid:
@@ -215,6 +238,47 @@ def display_submersibles(game: Game) -> None:
     console.print(subs_table)
 
 
+def display_mineral_deposits(game: Game) -> None:
+    """Display mineral deposit status."""
+    deposits_table = Table(title="Mineral Deposits", show_header=True)
+    deposits_table.add_column("Pos", style="cyan")
+    deposits_table.add_column("Resource", style="white")
+    deposits_table.add_column("Setup Bonus", style="green")
+    deposits_table.add_column("Excavation Track", style="yellow")
+    
+    for i, deposit in enumerate(game.board.deposits):
+        if deposit:
+            # Format resource type
+            resource_color = RICH_COLORS[deposit.resource_type]
+            resource_str = f"[{resource_color}]{deposit.resource_type.value}[/]"
+            
+            # Format setup bonus
+            setup_color = RICH_COLORS[deposit.setup_bonus]
+            setup_str = f"[{setup_color}]{deposit.setup_bonus.value}[/]"
+            
+            # Format excavation track
+            track_str = ""
+            for pos, player_id in enumerate(deposit.excavation_track):
+                if player_id is not None:
+                    player = game.get_player(player_id)
+                    if player:
+                        track_str += f"P{player_id}({pos+1}) "
+            
+            if not track_str:
+                track_str = "Empty"
+            else:
+                track_str += f"[{len(deposit.excavation_track)}/5]"
+            
+            deposits_table.add_row(
+                f"x={i*2}",
+                resource_str,
+                setup_str,
+                track_str
+            )
+    
+    console.print(deposits_table)
+
+
 def display_game_state(game: Game) -> None:
     """Display complete game state."""
     console.clear()
@@ -241,6 +305,7 @@ def display_game_state(game: Game) -> None:
     # Display in columns
     display_player_status(game)
     display_submersibles(game)
+    display_mineral_deposits(game)
 
 
 def display_action_result(result: Dict) -> None:
