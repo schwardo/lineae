@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.prompt import Prompt, IntPrompt, Confirm
 
 from ..core.game import Game
-from ..core.constants import Position, ResourceType, GamePhase
+from ..core.constants import Position, ResourceType, GamePhase, RESOURCE_ABBREVIATIONS
 from ..core.actions import (
     PassAction, BasicIncomeAction, HireWorkerAction,
     SpecialElectionAction, MoveVesselAction, MoveSubmersibleAction,
@@ -14,7 +14,7 @@ from ..core.actions import (
 )
 from .display import (
     display_game_state, display_action_result, 
-    display_final_scores, console
+    display_final_scores, console, RICH_COLORS
 )
 
 class GameCLI:
@@ -24,13 +24,68 @@ class GameCLI:
         self.game = game
         self.console = console
     
+    def choose_starting_positions(self) -> Dict[int, int]:
+        """Have players choose starting positions in reverse turn order."""
+        self.console.print("\n[yellow]STARTING POSITION SELECTION[/]")
+        self.console.print("Players will choose starting positions in reverse turn order.")
+        self.console.print("Positions 6-7 are blocked by Jupiter in round 1!\n")
+        
+        # Show mineral deposits
+        self.console.print("Mineral deposits (setup bonuses):")
+        for i, deposit in enumerate(self.game.board.deposits):
+            if deposit:
+                abbrev = RESOURCE_ABBREVIATIONS[deposit.setup_bonus]
+                color = RICH_COLORS[deposit.setup_bonus]
+                self.console.print(f"  Position {i*2}: [{color}]{abbrev}[/] setup bonus")
+        
+        vessel_positions = {}
+        taken_positions = set()
+        
+        # Reverse turn order
+        reverse_order = list(reversed(self.game.players))
+        
+        for player in reverse_order:
+            self.console.print(f"\n{player.name}'s turn to place vessel:")
+            
+            # Show available positions
+            available = []
+            for x in range(8):
+                if x not in taken_positions:
+                    status = ""
+                    if x >= 6:
+                        status = " [red](blocked by Jupiter)[/]"
+                    available.append(f"{x}{status}")
+            
+            self.console.print(f"Available positions: {', '.join(available)}")
+            
+            # Get choice
+            valid_choices = [str(x) for x in range(8) if x not in taken_positions]
+            pos_x = IntPrompt.ask("Choose position", choices=valid_choices)
+            
+            vessel_positions[player.id] = pos_x
+            taken_positions.add(pos_x)
+            
+            # Show what resource they'll get
+            deposit_idx = pos_x // 2
+            if deposit_idx < len(self.game.board.deposits):
+                deposit = self.game.board.deposits[deposit_idx]
+                if deposit:
+                    abbrev = RESOURCE_ABBREVIATIONS[deposit.setup_bonus]
+                    color = RICH_COLORS[deposit.setup_bonus]
+                    self.console.print(f"  {player.name} will receive [{color}]{abbrev}[/]")
+        
+        return vessel_positions
+    
     def run(self) -> None:
         """Run the game loop."""
         self.console.print("[bold green]Welcome to Lineae![/]")
         self.console.print("Compete to extract resources from Europa's ocean!\n")
         
-        # Setup game
-        self.game.setup_game()
+        # Players choose starting positions
+        vessel_positions = self.choose_starting_positions()
+        
+        # Setup game with chosen positions
+        self.game.setup_game(vessel_positions)
         
         # Game loop
         while not self.game.game_over:
@@ -87,6 +142,11 @@ class GameCLI:
                 result = self.game.execute_action(action)
                 display_action_result(result)
                 
+                # If action failed, let the player try again
+                if not result.get("success", False):
+                    self.console.print("[yellow]Please try a different action.[/]")
+                    continue
+                
                 if not result.get("immediate_action", False):
                     Prompt.ask("\nPress Enter to continue")
     
@@ -131,10 +191,37 @@ class GameCLI:
                 return None
         
         elif action_type == "MOVE_VESSEL":
-            current_x = self.game.board.vessel_positions[player_id].x
-            new_x = IntPrompt.ask(f"Move vessel to position (current: {current_x})", 
-                                 choices=[str(i) for i in range(8)])
-            return MoveVesselAction(player_id, new_x)
+            current_pos = self.game.board.vessel_positions[player_id]
+            current_x = current_pos.x
+            
+            # Find valid destinations based on water level
+            current_water_level = self.game.board.get_water_level_at_x(current_x)
+            valid_destinations = []
+            
+            for x in range(8):
+                if x == current_x:
+                    continue
+                # Check if water level allows movement to this position
+                can_move = True
+                start_x = min(current_x, x)
+                end_x = max(current_x, x)
+                for check_x in range(start_x, end_x + 1):
+                    if self.game.board.get_water_level_at_x(check_x) != current_water_level:
+                        can_move = False
+                        break
+                if can_move:
+                    valid_destinations.append(x)
+            
+            self.console.print(f"Current position: x={current_x}")
+            if valid_destinations:
+                self.console.print(f"Valid destinations: {', '.join(map(str, valid_destinations))}")
+                new_x = IntPrompt.ask("Move vessel to position", 
+                                     choices=[str(x) for x in valid_destinations])
+            else:
+                self.console.print("[red]No valid destinations! Water levels block all movement.[/]")
+                return None
+                
+            return MoveVesselAction(player_id, int(new_x))
         
         elif action_type == "MOVE_SUBMERSIBLE":
             return self.get_submersible_action(player_id)
@@ -174,10 +261,12 @@ class GameCLI:
             if controller and controller[0] != player_id:
                 status = f" [controlled by P{controller[0]}, need {controller[1]+1} workers]"
             
-            self.console.print(f"  {name}: pos={pos_str}, cargo={cargo_count}/3{status}")
+            self.console.print(f"  {name}: pos={pos_str}, cargo={cargo_count}/4{status}")
         
-        sub_name = Prompt.ask("Choose submersible", 
+        sub_name = Prompt.ask("Choose submersible (A-F)", 
                              choices=list(self.game.board.submersibles.keys()))
+        # Convert to upper case if entered in lower case
+        sub_name = sub_name.upper()
         
         # Calculate workers needed
         current = self.game.worker_placements.get(f"sub_{sub_name}")
@@ -239,11 +328,17 @@ class GameCLI:
                 info_str = f" ({', '.join(info)})" if info else ""
                 self.console.print(f"  {j}. {direction} to ({pos.x},{pos.y}){info_str}")
             
-            choice = IntPrompt.ask("Choose move (0 to finish)", 
-                                  choices=[str(i) for i in range(len(valid_moves) + 1)])
-            
-            if choice == 0:
-                break
+            # Submersibles must move at least once
+            if i == 0:
+                # First move is mandatory - no stay option
+                choice = IntPrompt.ask("Choose move (must move at least once)", 
+                                      choices=[str(j) for j in range(1, len(valid_moves) + 1)])
+            else:
+                # Subsequent moves - can stop
+                choice = IntPrompt.ask("Choose move (0 to stop here)", 
+                                      choices=[str(j) for j in range(len(valid_moves) + 1)])
+                if choice == 0:
+                    break
             
             _, new_pos = valid_moves[choice - 1]
             path.append(new_pos)
