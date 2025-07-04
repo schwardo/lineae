@@ -1,6 +1,6 @@
 """Game constants and configuration for Lineae."""
 
-from enum import Enum, auto
+from enum import StrEnum, auto
 from typing import Dict, List, Tuple
 
 # Game Configuration
@@ -15,7 +15,7 @@ INITIAL_WORKERS = 4  # 3 for 4-5 player games
 MAX_TECHNOLOGY_CARDS = 2
 
 # Resource Types
-class ResourceType(Enum):
+class ResourceType(StrEnum):
     """Types of resources in the game."""
     SILICA = "silica"
     SULFUR = "sulfur"
@@ -33,7 +33,7 @@ RESOURCE_COLORS: Dict[ResourceType, str] = {
 }
 
 # Action Types
-class ActionType(Enum):
+class ActionType(StrEnum):
     """Types of actions players can take."""
     PLACE_WORKER = auto()
     MOVE_VESSEL = auto()
@@ -101,7 +101,7 @@ DEPOSIT_TYPES = [
 ]
 
 # Game Phases
-class GamePhase(Enum):
+class GamePhase(StrEnum):
     """Phases of each game round."""
     SUNLIGHT = "sunlight"
     ACTION = "action"

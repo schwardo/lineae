@@ -8,7 +8,7 @@ from rich.panel import Panel
 from rich.layout import Layout
 from rich.columns import Columns
 
-from ..core.constants import RESOURCE_COLORS, ResourceType, BOARD_WIDTH, BOARD_HEIGHT
+from ..core.constants import RESOURCE_COLORS, ResourceType, BOARD_WIDTH, BOARD_HEIGHT, Position
 from ..core.game import Game
 
 console = Console()
@@ -63,7 +63,7 @@ def display_board(game: Game) -> None:
     for y in range(BOARD_HEIGHT):
         row = []
         for x in range(BOARD_WIDTH):
-            pos = board.ocean[(x, y)]
+            pos = board.ocean[Position(x, y)]
             cell = ""
             
             # Check for vessel at surface
