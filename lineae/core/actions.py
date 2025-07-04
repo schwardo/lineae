@@ -1,86 +1,67 @@
 """Game actions and validation for Lineae."""
 
 from typing import List, Optional, Dict, Tuple, Any
-from dataclasses import dataclass
 from .constants import (
     ActionType, ResourceType, Position, 
     VP_ROCKET_LOADING, VP_EXCAVATION_TRACK,
     DOCK_COST_PER_CUBE, ELECTRICITY_PER_MOVE
 )
 
-@dataclass
 class Action:
     """Base class for game actions."""
-    action_type: ActionType
-    player_id: int
-    workers_required: int = 1
+    def __init__(self, action_type: ActionType, player_id: int, workers_required: int = 1):
+        self.action_type = action_type
+        self.player_id = player_id
+        self.workers_required = workers_required
 
-@dataclass
 class PassAction(Action):
     """Player passes their turn."""
     def __init__(self, player_id: int):
         super().__init__(ActionType.PASS, player_id, 0)
 
-@dataclass
 class BasicIncomeAction(Action):
     """Take $2 basic income."""
     def __init__(self, player_id: int):
         super().__init__(ActionType.BASIC_INCOME, player_id, 1)
 
-@dataclass
 class HireWorkerAction(Action):
     """Hire a new worker."""
     def __init__(self, player_id: int):
         super().__init__(ActionType.HIRE_WORKER, player_id, 1)
 
-@dataclass
 class SpecialElectionAction(Action):
     """Take first player marker."""
     def __init__(self, player_id: int, workers: int = 1):
         super().__init__(ActionType.SPECIAL_ELECTION, player_id, workers)
 
-@dataclass
 class MoveVesselAction(Action):
     """Move surface vessel."""
-    new_x: int
-    
     def __init__(self, player_id: int, new_x: int):
         super().__init__(ActionType.MOVE_VESSEL, player_id, 0)
         self.new_x = new_x
 
-@dataclass
 class MoveSubmersibleAction(Action):
     """Move a submersible."""
-    submersible_name: str
-    path: List[Position]
-    excavate: bool = False
-    dock: bool = False
-    
     def __init__(self, player_id: int, submersible_name: str, 
                  path: List[Position], workers: int = 1):
         super().__init__(ActionType.MOVE_SUBMERSIBLE, player_id, workers)
         self.submersible_name = submersible_name
         self.path = path
+        self.excavate = False
+        self.dock = False
 
-@dataclass
 class ToggleLockAction(Action):
     """Toggle a lock open/closed."""
-    lock_x: int
-    
     def __init__(self, player_id: int, lock_x: int):
         super().__init__(ActionType.TOGGLE_LOCK, player_id, 1)
         self.lock_x = lock_x
 
-@dataclass
 class LoadRocketAction(Action):
     """Load resources onto a rocket."""
-    resources: List[ResourceType]
-    
     def __init__(self, player_id: int, resources: List[ResourceType]):
         super().__init__(ActionType.LOAD_ROCKET, player_id, 1)
         self.resources = resources
 
-@dataclass
 class UseDieselAction(Action):
     """Use diesel engine to generate electricity."""
     def __init__(self, player_id: int):
