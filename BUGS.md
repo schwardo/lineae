@@ -36,6 +36,13 @@
     - Single atmosphere layer implemented (no stacking)
     - Diesel engine validation checks for available reachable positions
 
+[ ] Surface vessel's locations are tile columns and not mineral columns.  This means that there are only 8 starting locations to choose from, and there are 3 possible locations that a submersible can be below a surface vessel for docking.
+[ ] Submersible starting locations are X=3,6,10,13,17,20 and Y=7.
+[ ] Empty mineral spaces in the ocean should be displayed as __ rather than blank spaces.
+[ ] The four locks are located between X=2-3, 8-9. 14-15, and 20-21.  Display them as an extra column on the grid but don't change the current X coordinates.  Submersibles can move across them but they don't count as a space for movement rules.
+[ ] All rockets have 5 mineral cube spaces.  One of them is always a wildcard spot that can contain any mineral cube.
+[ ] If you choose the move submersible action, you may choose not to move the submersible but still excavate or dock.
+
 ## Additional Improvements
 
 - **dissolve_minerals**: Fixed to add 2 mineral cubes per deposit per round (was only adding 1). The method correctly skips spaces occupied by submersibles or existing resources as per the rules.
