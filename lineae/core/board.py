@@ -302,15 +302,21 @@ class Board:
             if not deposit:
                 continue
             
-            # Find lowest empty space in column
+            # Each deposit dissolves 2 cubes per round
+            cubes_to_add = 2
+            
+            # Find lowest empty spaces in column
             x = i * 2
             for y in range(BOARD_HEIGHT - 1, -1, -1):
+                if cubes_to_add == 0:
+                    break
+                    
                 pos = Position(x, y)
                 space = self.ocean[pos]
                 
                 if space.is_empty():
                     space.add_resource(deposit.resource_type)
-                    break
+                    cubes_to_add -= 1
     
     def get_deposit_below(self, position: Position) -> Optional[Tuple[int, MineralDeposit]]:
         """Get mineral deposit below a position at ocean floor."""

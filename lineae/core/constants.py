@@ -92,12 +92,12 @@ LOCK_POSITIONS = [1, 3, 4, 6]
 
 # Initial Submersible Positions
 INITIAL_SUBMERSIBLE_POSITIONS: Dict[str, Position] = {
-    "A": Position(0, 5),
-    "B": Position(2, 5),
-    "C": Position(3, 7),
-    "D": Position(5, 7),
-    "E": Position(6, 9),
-    "F": Position(7, 5)
+    "A": Position(0, 8),
+    "B": Position(2, 8),
+    "C": Position(3, 8),
+    "D": Position(5, 8),
+    "E": Position(6, 8),
+    "F": Position(7, 8)
 }
 
 # Mineral Deposit Configuration
