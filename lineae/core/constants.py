@@ -7,8 +7,8 @@ from typing import Dict, List, Tuple
 MAX_PLAYERS = 5
 MIN_PLAYERS = 1
 MAX_ROUNDS = 7
-BOARD_WIDTH = 8
-BOARD_HEIGHT = 10
+BOARD_WIDTH = 24
+BOARD_HEIGHT = 9
 INITIAL_MONEY = 3
 MAX_ELECTRICITY = 9
 INITIAL_WORKERS = 4  # 3 for 4-5 player games
@@ -88,16 +88,18 @@ class Position:
         return f"Position({self.x}, {self.y})"
 
 # Lock Positions (x-coordinates where locks are placed)
-LOCK_POSITIONS = [1, 3, 4, 6]
+# Adjusted for 24-wide board - roughly at 1/8, 3/8, 4/8, 6/8 of board width
+LOCK_POSITIONS = [3, 9, 12, 18]
 
 # Initial Submersible Positions
+# Distributed across 24-wide board at Y=8 (second from bottom)
 INITIAL_SUBMERSIBLE_POSITIONS: Dict[str, Position] = {
-    "A": Position(0, 5),
-    "B": Position(2, 5),
-    "C": Position(3, 7),
-    "D": Position(5, 7),
-    "E": Position(6, 9),
-    "F": Position(7, 5)
+    "A": Position(2, 8),
+    "B": Position(6, 8),
+    "C": Position(10, 8),
+    "D": Position(14, 8),
+    "E": Position(18, 8),
+    "F": Position(22, 8)
 }
 
 # Mineral Deposit Configuration

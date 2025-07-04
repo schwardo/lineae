@@ -2,6 +2,7 @@
 
 from typing import Dict, List, Optional
 from collections import defaultdict
+import random
 from .constants import ResourceType
 
 class ResourcePool:
@@ -148,6 +149,11 @@ class MineralDeposit:
         self.resource_type = resource_type
         self.setup_bonus = setup_bonus
         self.excavation_track = []  # List of player IDs on track
+        
+        # Second resource type for alternating pattern
+        # Choose a different resource type
+        other_types = [t for t in ResourceType if t != resource_type]
+        self.secondary_resource_type = random.choice(other_types)
         
     def can_excavate(self) -> bool:
         """Check if deposit can be excavated (track not full)."""
