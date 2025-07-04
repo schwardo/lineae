@@ -28,6 +28,7 @@ class GameCLI:
         """Have players choose starting positions in reverse turn order."""
         self.console.print("\n[yellow]STARTING POSITION SELECTION[/]")
         self.console.print("Players will choose starting positions in reverse turn order.")
+        self.console.print("There are 8 tile positions (0-7) to choose from.")
         self.console.print("Positions 6-7 are blocked by Jupiter in round 1!\n")
         
         # Show mineral deposits
@@ -36,9 +37,9 @@ class GameCLI:
             if deposit:
                 abbrev = RESOURCE_ABBREVIATIONS[deposit.setup_bonus]
                 color = RICH_COLORS[deposit.setup_bonus]
-                start_x = i * 6
-                end_x = i * 6 + 5
-                self.console.print(f"  Positions {start_x}-{end_x}: [{color}]{abbrev}[/] setup bonus")
+                # Each deposit covers 2 tile columns
+                tiles = f"{i*2}-{i*2+1}"
+                self.console.print(f"  Tile positions {tiles}: [{color}]{abbrev}[/] setup bonus")
         
         vessel_positions = {}
         taken_positions = set()
@@ -49,27 +50,27 @@ class GameCLI:
         for player in reverse_order:
             self.console.print(f"\n{player.name}'s turn to place vessel:")
             
-            # Show available positions
+            # Show available tile positions (0-7)
             available = []
-            for x in range(BOARD_WIDTH):
+            for x in range(8):  # Only 8 tile positions
                 if x not in taken_positions:
                     status = ""
-                    # Jupiter blocks rightmost 2 positions based on its position
-                    if x >= BOARD_WIDTH - 2:
+                    # Jupiter blocks rightmost 2 positions
+                    if x >= 6:
                         status = " [red](blocked by Jupiter)[/]"
                     available.append(f"{x}{status}")
             
             self.console.print(f"Available positions: {', '.join(available)}")
             
             # Get choice
-            valid_choices = [str(x) for x in range(BOARD_WIDTH) if x not in taken_positions]
+            valid_choices = [str(x) for x in range(8) if x not in taken_positions]
             pos_x = IntPrompt.ask("Choose position", choices=valid_choices)
             
             vessel_positions[player.id] = pos_x
             taken_positions.add(pos_x)
             
             # Show what resource they'll get
-            deposit_idx = pos_x // 6
+            deposit_idx = pos_x // 2
             if deposit_idx < len(self.game.board.deposits):
                 deposit = self.game.board.deposits[deposit_idx]
                 if deposit:
@@ -115,27 +116,31 @@ class GameCLI:
             if vessel_pos and player.cargo_bay.has(ResourceType.HYDROCARBON):
                 if Confirm.ask(f"\n{player.name}: Use diesel engine for 6 extra electricity? (costs 1 hydrocarbon)"):
                     # Check if current position is available
-                    if self.game.board.atmosphere.get(vessel_pos.x, 0) > 0:
+                    if self.game.board.atmosphere.get(vessel_pos.x * 3 + 1, 0) > 0:
                         # Need to choose a different position
                         reachable = []
-                        water_level = self.game.board.get_water_level_at_x(vessel_pos.x)
-                        for x in range(BOARD_WIDTH):
-                            if (self.game.board.get_water_level_at_x(x) == water_level and
-                                self.game.board.atmosphere.get(x, 0) == 0):
-                                reachable.append(x)
+                        water_level = self.game.board.get_water_level_at_x(vessel_pos.x * 3 + 1)
+                        for tile_x in range(8):
+                            mineral_x = tile_x * 3 + 1  # Middle mineral column of tile
+                            if (self.game.board.get_water_level_at_x(mineral_x) == water_level and
+                                self.game.board.atmosphere.get(mineral_x, 0) == 0):
+                                reachable.append(tile_x)
                         
                         if not reachable:
                             self.console.print("[red]No reachable positions available for pollution![/]")
                             continue
                         
                         choices = [str(x) for x in reachable]
-                        pollution_x = IntPrompt.ask(
-                            f"Choose position for pollution (reachable: {', '.join(choices)})",
+                        pollution_tile = IntPrompt.ask(
+                            f"Choose tile position for pollution (reachable: {', '.join(choices)})",
                             choices=choices
                         )
+                        # Convert tile position to mineral column (center)
+                        pollution_x = pollution_tile * 3 + 1
                         action = UseDieselAction(player.id, pollution_x)
                     else:
-                        action = UseDieselAction(player.id)
+                        # Place at center mineral column of current tile
+                        action = UseDieselAction(player.id, vessel_pos.x * 3 + 1)
                     
                     result = self.game.execute_action(action)
                     display_action_result(result)
@@ -218,13 +223,14 @@ class GameCLI:
         
         elif action_type == "MOVE_VESSEL":
             current_pos = self.game.board.vessel_positions[player_id]
-            current_x = current_pos.x
+            current_x = current_pos.x  # This is already a tile position (0-7)
             
             # Find valid destinations based on water level
-            current_water_level = self.game.board.get_water_level_at_x(current_x)
+            # Check water level at middle mineral column of current tile
+            current_water_level = self.game.board.get_water_level_at_x(current_x * 3 + 1)
             valid_destinations = []
             
-            for x in range(BOARD_WIDTH):
+            for x in range(8):  # Check all 8 tile positions
                 if x == current_x:
                     continue
                 # Check if water level allows movement to this position
@@ -232,13 +238,14 @@ class GameCLI:
                 start_x = min(current_x, x)
                 end_x = max(current_x, x)
                 for check_x in range(start_x, end_x + 1):
-                    if self.game.board.get_water_level_at_x(check_x) != current_water_level:
+                    # Check water level at middle mineral column of each tile
+                    if self.game.board.get_water_level_at_x(check_x * 3 + 1) != current_water_level:
                         can_move = False
                         break
                 if can_move:
                     valid_destinations.append(x)
             
-            self.console.print(f"Current position: x={current_x}")
+            self.console.print(f"Current position: tile {current_x}")
             if valid_destinations:
                 self.console.print(f"Valid destinations: {', '.join(map(str, valid_destinations))}")
                 new_x = IntPrompt.ask("Move vessel to position", 
@@ -312,6 +319,44 @@ class GameCLI:
         
         self.console.print(f"Current position: ({sub.position.x},{sub.position.y})")
         self.console.print(f"You have {player.electricity} electricity (1 per move after first)")
+        
+        # Check if we can excavate/dock at current position
+        can_excavate_here = False
+        can_dock_here = False
+        
+        if sub.position.y == BOARD_HEIGHT - 1:
+            deposit_info = self.game.board.get_deposit_below(sub.position)
+            if deposit_info and sub.has_space():
+                can_excavate_here = True
+        
+        if self.game.board.is_submersible_below_vessel(sub_name, player_id) and not sub.is_empty():
+            can_dock_here = True
+        
+        # Ask if they want to stay in place (if excavate/dock available)
+        if can_excavate_here or can_dock_here:
+            options = ["Move to a new position"]
+            if can_excavate_here:
+                options.append("Stay and excavate")
+            if can_dock_here:
+                options.append("Stay and dock")
+            
+            self.console.print("\nOptions:")
+            for i, opt in enumerate(options):
+                self.console.print(f"  {i}. {opt}")
+            
+            choice = IntPrompt.ask("Choose option", choices=[str(i) for i in range(len(options))])
+            
+            if choice == 0:
+                # Continue with movement
+                pass
+            else:
+                # Stay in place
+                action = MoveSubmersibleAction(player_id, sub_name, [], workers_needed)
+                if choice == 1 and can_excavate_here:
+                    action.excavate = True
+                elif (choice == 1 and can_dock_here and not can_excavate_here) or (choice == 2 and can_dock_here):
+                    action.dock = True
+                return action
         
         path = []
         current_pos = sub.position
@@ -388,8 +433,7 @@ class GameCLI:
         
         # Check docking
         if final_pos.y == 0 and self.game.board.ocean[final_pos].has_water:
-            vessel_pos = self.game.board.vessel_positions[player_id]
-            if vessel_pos.x == final_pos.x and not sub.is_empty():
+            if self.game.board.is_submersible_below_vessel(sub_name, player_id) and not sub.is_empty():
                 if Confirm.ask(f"Dock with vessel? (costs ${sub.cargo.total()})?"):
                     action.dock = True
         
@@ -399,14 +443,29 @@ class GameCLI:
         """Get rocket loading action."""
         player = self.game.get_player(player_id)
         vessel_pos = self.game.board.vessel_positions[player_id]
-        rocket = self.game.board.rockets[vessel_pos.x]
+        rocket = self.game.board.rockets[vessel_pos.x]  # vessel_pos.x is already a tile position
         
         self.console.print(f"\nRocket: {rocket.name}")
         self.console.print("Requirements:")
+        
+        # Show specific requirements
         for resource, needed in rocket.required_resources.items():
             loaded = rocket.loaded_resources.count(resource)
+            # Don't count wildcard in specific slots
+            if rocket.wildcard_resource == resource:
+                loaded -= 1
             has = player.cargo_bay.count(resource)
-            self.console.print(f"  {resource.value}: {loaded}/{needed} (you have {has})")
+            abbrev = RESOURCE_ABBREVIATIONS[resource]
+            color = RICH_COLORS[resource]
+            self.console.print(f"  [{color}]{abbrev}[/]: {loaded}/{needed} (you have {has})")
+        
+        # Show wildcard slot
+        if rocket.wildcard_filled:
+            abbrev = RESOURCE_ABBREVIATIONS[rocket.wildcard_resource]
+            color = RICH_COLORS[rocket.wildcard_resource]
+            self.console.print(f"  Wildcard: [{color}]{abbrev}[/]")
+        else:
+            self.console.print(f"  Wildcard: empty (can hold any resource)")
         
         # Get resources to load
         resources_to_load = []
@@ -415,9 +474,13 @@ class GameCLI:
             available = []
             for resource in ResourceType:
                 if player.cargo_bay.has(resource):
-                    needed = rocket.required_resources.get(resource, 0)
-                    loaded = rocket.loaded_resources.count(resource)
-                    if loaded < needed:
+                    # Check if can be loaded in specific slot or wildcard
+                    if rocket.load(resource):
+                        # Undo the test load
+                        rocket.loaded_resources.remove(resource)
+                        if rocket.wildcard_filled and rocket.wildcard_resource == resource:
+                            rocket.wildcard_filled = False
+                            rocket.wildcard_resource = None
                         available.append(resource)
             
             if not available:
@@ -425,7 +488,9 @@ class GameCLI:
             
             self.console.print("\nAvailable resources to load:")
             for i, resource in enumerate(available, 1):
-                self.console.print(f"  {i}. {resource.value}")
+                abbrev = RESOURCE_ABBREVIATIONS[resource]
+                color = RICH_COLORS[resource]
+                self.console.print(f"  {i}. [{color}]{abbrev}[/]")
             
             choice = IntPrompt.ask("Load which resource? (0 to finish)", 
                                   choices=[str(i) for i in range(len(available) + 1)])

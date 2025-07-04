@@ -75,8 +75,8 @@ class Board:
         # Surface vessels (player positions)
         self.vessel_positions: Dict[int, Position] = {}  # player_id -> position
         
-        # Rockets (8 rockets spread across 24 positions)
-        self.rockets: List[Optional[Rocket]] = [None] * 24
+        # Rockets (8 rockets, one per tile position)
+        self.rockets: List[Optional[Rocket]] = [None] * 8
         
         # Mineral deposits
         self.deposits: List[Optional[MineralDeposit]] = [None] * 4
@@ -139,18 +139,20 @@ class Board:
             "Lunar Base", "Deep Space Explorer"
         ]
         
-        # Place 8 rockets evenly across 24 positions
-        rocket_positions = [0, 3, 6, 9, 12, 15, 18, 21]
-        for i, pos in enumerate(rocket_positions):
-            # Random resource requirements (2-5 cubes total)
-            num_cubes = random.randint(2, 5)
+        # Place 8 rockets, one per tile position
+        for i in range(8):
+            # All rockets have exactly 5 cubes
+            # 4 specific resource requirements + 1 wildcard
             requirements = {}
             
-            for _ in range(num_cubes):
+            # Generate 4 specific resource requirements
+            for _ in range(4):
                 resource = random.choice(list(ResourceType))
                 requirements[resource] = requirements.get(resource, 0) + 1
             
-            self.rockets[pos] = Rocket(rocket_names[i], requirements, pos)
+            # Note: The wildcard slot is handled in the loading logic
+            # We just track the 4 specific requirements here
+            self.rockets[i] = Rocket(rocket_names[i], requirements, i)
     
     def place_submersible(self, name: str, position: Position) -> bool:
         """Place a submersible at a position."""
@@ -228,38 +230,41 @@ class Board:
         """Place a player's surface vessel."""
         if position.y != 0:  # Must be at surface
             return False
-        if position.x < 0 or position.x >= BOARD_WIDTH:
+        # Convert to tile column (0-7) range
+        tile_x = position.x
+        if tile_x < 0 or tile_x >= 8:  # Only 8 tile columns
             return False
         
         self.vessel_positions[player_id] = position
         return True
     
-    def move_vessel(self, player_id: int, new_x: int) -> bool:
+    def move_vessel(self, player_id: int, new_tile_x: int) -> bool:
         """Move vessel horizontally if water level allows."""
         if player_id not in self.vessel_positions:
             return False
         
         current_pos = self.vessel_positions[player_id]
         
-        # Check if new position is valid
-        if new_x < 0 or new_x >= BOARD_WIDTH:
+        # Check if new position is valid (tile column 0-7)
+        if new_tile_x < 0 or new_tile_x >= 8:
             return False
         
         # Check if water levels allow movement between current and new position
         # Must check all intermediate positions
-        start_x = min(current_pos.x, new_x)
-        end_x = max(current_pos.x, new_x)
+        start_x = min(current_pos.x, new_tile_x)
+        end_x = max(current_pos.x, new_tile_x)
         
-        # Get water level at starting position
-        start_water_level = self.get_water_level_at_x(start_x)
+        # Get water level at starting position (check middle mineral column of tile)
+        start_water_level = self.get_water_level_at_x(start_x * 3 + 1)
         
         # Check all positions between start and end
         for x in range(start_x, end_x + 1):
-            if self.get_water_level_at_x(x) != start_water_level:
+            # Check middle mineral column of each tile
+            if self.get_water_level_at_x(x * 3 + 1) != start_water_level:
                 return False
         
         # Movement is valid
-        self.vessel_positions[player_id] = Position(new_x, 0)
+        self.vessel_positions[player_id] = Position(new_tile_x, 0)
         return True
     
     def get_water_level_at_x(self, x: int) -> int:
@@ -283,13 +288,16 @@ class Board:
         
         return sunlit
     
-    def get_electricity_at_position(self, x: int) -> int:
-        """Get electricity generated at a position (considering pollution)."""
-        if x not in self.get_sunlight_positions():
+    def get_electricity_at_position(self, tile_x: int) -> int:
+        """Get electricity generated at a tile position (considering pollution)."""
+        # Check center mineral column of the tile
+        mineral_x = tile_x * 3 + 1
+        
+        if mineral_x not in self.get_sunlight_positions():
             return 0
         
         # Each pollution cube blocks 2 electricity
-        pollution_count = self.atmosphere.get(x, 0)
+        pollution_count = self.atmosphere.get(mineral_x, 0)
         electricity = 6 - (pollution_count * 2)
         return max(0, electricity)
     
@@ -363,6 +371,21 @@ class Board:
         # Check if at top row with water
         return (sub.position.y == 0 and 
                 self.ocean[sub.position].has_water)
+    
+    def is_submersible_below_vessel(self, sub_name: str, player_id: int) -> bool:
+        """Check if submersible is below a player's vessel (for docking)."""
+        if not self.is_submersible_at_surface(sub_name):
+            return False
+        
+        if player_id not in self.vessel_positions:
+            return False
+        
+        sub = self.submersibles[sub_name]
+        vessel_tile_x = self.vessel_positions[player_id].x
+        
+        # Vessel covers 3 mineral columns (tile_x * 3 to tile_x * 3 + 2)
+        # Check if submersible is in one of those columns
+        return vessel_tile_x * 3 <= sub.position.x <= vessel_tile_x * 3 + 2
     
     def get_board_state(self) -> dict:
         """Get board state for display/logging."""

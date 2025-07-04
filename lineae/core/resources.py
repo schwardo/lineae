@@ -62,7 +62,7 @@ class ResourcePool:
 class Submersible:
     """Represents a submersible vehicle."""
     
-    def __init__(self, name: str, capacity: int = 3):
+    def __init__(self, name: str, capacity: int = 4):
         self.name = name
         self.capacity = capacity
         self.cargo = ResourcePool()
@@ -107,39 +107,58 @@ class Rocket:
         self.loaded_resources = ResourcePool()
         self.position = position
         self.completed_by = None
+        self.wildcard_filled = False  # Track if wildcard slot is used
+        self.wildcard_resource = None  # Track what resource is in wildcard slot
     
     def load(self, resource_type: ResourceType) -> bool:
         """Load a resource cube onto the rocket."""
+        # Check if this specific resource type is still needed
         needed = self.required_resources.get(resource_type, 0)
         loaded = self.loaded_resources.count(resource_type)
+        
+        # Subtract wildcard if it contains this resource type
+        if self.wildcard_resource == resource_type:
+            loaded -= 1
         
         if loaded < needed:
             self.loaded_resources.add(resource_type)
             return True
+        elif not self.wildcard_filled:
+            # Use wildcard slot
+            self.loaded_resources.add(resource_type)
+            self.wildcard_filled = True
+            self.wildcard_resource = resource_type
+            return True
+        
         return False
     
     def is_complete(self) -> bool:
         """Check if rocket has all required resources."""
-        for resource_type, needed in self.required_resources.items():
-            if self.loaded_resources.count(resource_type) < needed:
-                return False
-        return True
+        # Must have exactly 5 cubes total (4 specific + 1 wildcard)
+        return self.loaded_resources.total() == 5
     
     def get_progress(self) -> Dict[str, int]:
         """Get loading progress for each resource type."""
         progress = {}
         for resource_type, needed in self.required_resources.items():
             loaded = self.loaded_resources.count(resource_type)
+            # Don't count wildcard in specific progress
+            if self.wildcard_resource == resource_type:
+                loaded -= 1
             progress[resource_type.value] = {
                 "loaded": loaded,
                 "needed": needed
             }
+        # Add wildcard status
+        progress["wildcard"] = {
+            "loaded": 1 if self.wildcard_filled else 0,
+            "needed": 1
+        }
         return progress
     
     def __repr__(self) -> str:
         loaded = self.loaded_resources.total()
-        needed = sum(self.required_resources.values())
-        return f"Rocket({self.name}, {loaded}/{needed})"
+        return f"Rocket({self.name}, {loaded}/5)"
 
 
 class MineralDeposit:

@@ -59,6 +59,7 @@ class Game:
                 player.vessel_position = position
                 
                 # Give setup bonus resource from deposit below
+                # Each deposit covers 2 tile columns (deposit 0: tiles 0-1, deposit 1: tiles 2-3, etc)
                 deposit_idx = pos_x // 2
                 if deposit_idx < len(self.board.deposits):
                     deposit = self.board.deposits[deposit_idx]
