@@ -13,3 +13,7 @@
 [x] When displaying the game state, instead of something like "I:2" to indicate two iron cubes just write "I I".  If there are extra spaces that can hold a mineral cube but are not occupied, use "__".  Do this for empty ocean tiles as well.
 [x] Instead of one-letter abbreviations for the minerals use the ones written in the rule book (e.g. Fe for Iron).
 [x] Mineral deposit tiles have 4 resources:  2 that dissolve into the ocean each round, 1 that you get during excavation, and 1 as a setup bonus.  Display them all appropriately in the Mineral Deposit table.
+[ ] There are 3 mineral spaces on each ocean tile.  Submersibles need to move through each of them, so they each need their own X coordinates.
+[ ] All submersibles should start at the second from the bottom row.
+[ ] Each mineral deposit tile has 6 spaces that correspond to each of the mineral columns above it.  Consult the rules to understand how mineral cubes dissolve into the ocean each round.
+[ ] Pollution cubes can be placed immediately below the Juptier market.  Each pollution cube blocks out 2 electrivity from sunlight for the vessels below it.  Using the diesel engine places a hydrocarbon cube as a pollution cube at any space that the surface vessel could currently move to.  If all possible spaces are full then the diesel engine cannot be used.

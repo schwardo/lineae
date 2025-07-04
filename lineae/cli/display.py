@@ -8,7 +8,7 @@ from rich.panel import Panel
 from rich.layout import Layout
 from rich.columns import Columns
 
-from ..core.constants import RESOURCE_COLORS, RESOURCE_ABBREVIATIONS, ResourceType, BOARD_WIDTH, BOARD_HEIGHT, Position
+from ..core.constants import RESOURCE_COLORS, RESOURCE_ABBREVIATIONS, ResourceType, BOARD_WIDTH, BOARD_HEIGHT, SUBMERSIBLE_CAPACITY, Position
 from ..core.game import Game
 
 console = Console()

@@ -24,7 +24,7 @@ class GameCLI:
         self.game = game
         self.console = console
     
-    def choose_starting_positions(self) -> Dict[int, int]:
+    def choose_starting_positions(self) -> dict[int, int]:
         """Have players choose starting positions in reverse turn order."""
         self.console.print("\n[yellow]STARTING POSITION SELECTION[/]")
         self.console.print("Players will choose starting positions in reverse turn order.")
