@@ -1,0 +1,450 @@
+ 
+1-5   players,   ages   12+,   90-120   minutes  
+Summary  
+Since   the   day   you   arrived   on   Europa,   you’ve   been   awaiting   the   tell-tale   tremors   that  
+precede   the   formation   of   a   new    linea ,   or   break   in   the   moon’s   icy   surface.   Now   that   day  
+has   finally   come,   and   the   mineral-laden   ocean   is   exposed   to   the   elements   for   just   a   few  
+days.   You   and   the   other   colonists   will   compete   to   extract   the   moon’s   natural   resources,  
+excavate   mineral   deposits   along   the   ocean   floor,   and   launch   rockets   to   ship   those  
+extracted   minerals   back   to   Earth   before   the   surface   refreezes.  
+Components  
+●18”   x   18”   bifold   board   with   an   optional   acrylic   overlay  
+●25   resource   cubes   in   each   of   5   colors   (silica,   sulfur,   salt,   iron,   hydrocarbon)  
+●5   mineral   deposit   tiles   (double-sided)  
+●5   player   boards  
+●Wooden   player   pieces   in   5   colors:  
+○8   worker   tokens   (octagons)  
+○1   victory   point   token   (star)  
+○1   electricity   token   (lighting   bolt)  
+○1   surface   vessel   token   (container   ship)  
+●6   white   submersible   tokens   labelled   with   letters   A–F  
+●11   acrylic   water   tokens,   4   acrylic   lock   tokens,   and   1   acrylic   Jupiter   token  
+●35   money   tokens   (20   x   $1,   10   x   $5,   5   x   $10)  
+●10   mini   Rocket   cards  
+●10   mini   Technology   cards  
+●10   mini   Colony   cards  
+●a   starting   player   marker  
+   
+1  
+Overview  
+The   main   gameboard   depicts   a   cross-section   of   the   moon   Europa,  
+which   is   covered   by   an   ocean   of   liquid   water   under   a   frozen  
+crust.   Near   the   bottom   of   the   board   there   are   a   series   of   mineral  
+deposit   tiles,   which   serve   as   a   source   of   mineral   cubes   during   the  
+game.   The   ocean   contains   squares   that   will   fill   up   with   mineral  
+cubes   over   the   course   of   the   game.   Near   the   surface   of   the   ocean  
+there   are   movable   water   tiles   which   can   also   contain   and  
+transport   mineral   cubes.  
+ 
+In   this   game,   water   tiles   always   flow   from   left   to   right.   There   are  
+4    locks    distributed   horizontally   which   can   be   opened   or   closed   to  
+allow   or   restrict   the   flow   of   water.   The   top   left   of   the   ocean   is   a  
+source   where   new   water   tiles   flow   in   to   fill   in   any   empty   spaces,  
+and   water   tiles   flow   out   through   the   lower   right   of   the   ocean.  
+ 
+Each   of   you   has   a   small   player   board   that   represents   the   interior   of   your   surface   vessels.  
+The   location   of   your   vessel   on   the   main   board   is   indicated   by   your   vessel   token.   Surface  
+vessels   always   move   left   or   right   across   the   surface   of   the   water   but   can   only   move  
+between   adjacent   spaces   when   the   surface   of   the   water   is   at   the   same   level.   For   this  
+reason,   opening   and   closing   locks   to   manipulate   the   water   level   is   necessary   to   navigate  
+your   vessel   from   one   side   of   the   board   to   the   other.  
+ 
+There   are   6   shared   submersible   vehicles   which   can   be   moved  
+around   under   the   surface   of   the   water   and   which   can   pick-up  
+and   carry   around   mineral   cubes.   Submersibles   at   the   bottom  
+of   the   ocean   can   excavate   mineral   deposits,   which   advance  
+you   on   one   of   the   excavation   tracks.   Submersibles   at   the  
+surface   of   the   ocean   can   dock   with   a   surface   vessel   to   unload  
+their   mineral   cubes.  
+ 
+There   are   rockets   along   the   surface   of   the   ocean   that   must   be   filled   up   with   specific  
+resource   cubes.   Loading   resource   cubes   into   rockets   earns   victory   points,   and   being   the  
+one   to   complete   a   rocket   provides   a   technology   upgrade   for   future   turns.    Launching  
+rockets   also   reveals   buildings   as   the   colony   begins   to   take   shape.    These   buildings   allow  
+additional   actions   or   benefits   to   the   players   who   visit   them.  
+ 
+The   game   lasts   7   rounds   as   Jupiter   moves   across   the   surface   of   the   sky,   or   until   all   8  
+rockets   have   launched.  
+ 
+Image   Credit:   NASA/JPL-Caltech  
+2  
+
+Setup  
+First   decide   if   you’re   playing   the   Starter   Game.    If   so,   you   can   leave   the   colony   cards   in  
+the   box   and   skip   any   rules   that   refer   to   colony   cards.  
+ 
+Board   setup  
+1.Locate   the   acrylic   water  
+and   lock   tokens.   Place   lock  
+tokens   in   the   2nd   and   4th  
+slot.   Place   water   tokens   in  
+all   empty   water   slots   to   the  
+left   of   a   lock   token,   as  
+indicated.   Place   the  
+remaining   water   and   lock  
+tokens   in   a   pile   to   the   left  
+of   the   board.  
+2.Randomly   select   4   of   the   5  
+deposit   tiles,   choose   a  
+random   side   for   each,   and  
+place   them   in   a   random  
+order   along   the   bottom   of  
+the   board.  
+3.For   each   cube   shown   along  
+the   top   of   the   chosen  
+mineral   deposit   tiles,   place  
+a   cube   of   that   type   in   the  
+bottom-most   ocean   space  
+directly   above   that   cube.  
+4.Place   the   6   submersible   tokens   on   the   ocean   spaces   marked   with   the  
+corresponding   letter   (A–F).  
+5.Shuffle   the   rocket   deck   and   deal   1   card   face-up   on   each   of   the   8   rocket   spaces   on  
+the   top   half   of   the   board.   Place   the   remaining   rocket   cards   back   in   the   box.  
+6.Place   the   technology   cards   in   a   pile   near   the   board   to   form   the   Technology   Deck.  
+7.(Optional:   skip   for   Starter   Game)     Remove   the   Hydrodynamic   Generator   and   Water  
+Treatment   Plant   colony   cards   and   place   them   under   the   left-most   and   right-most  
+rocket   card.    Shuffle   the   rest   and   place   them   in   a   pile   near   the   board   to   form   the  
+Colony   Deck.  
+8.Place   the   Jupiter   token   on   the   right-most   space   of   the   Jupiter   track   (on   #1).  
+ 
+   
+3  
+
+Player   setup  
+1.Each   player   should   choose   a   color   and  
+take   all   of   the   player   pieces   matching  
+that   color.  
+2.Place   4   worker   tokens   in   your   Crew  
+Quarters   (or   3   tokens   for   a   4-   or   5-player  
+game).   Place   the   other   worker   tokens  
+near   the   main   board.  
+3.Place   your   electricity   token   on   space   0   of  
+your   battery   track.  
+4.Place   your   VP   token   on   space   0   of   the   VP   track   on   the   main   board.  
+5.Take   $3   in   money   tokens.  
+ 
+To   determine   the   starting   player:   everyone   shout   out   the   names   of   planets   and   moons   in  
+our   solar   system.   The   last   player   to   think   of   a   planet   or   moon   that   hasn’t   already   been  
+said   becomes   the   starting   player.  
+ 
+In   reverse   turn   order   (counter-clockwise),  
+take   turns   placing   your   surface   vessels   on   any  
+unoccupied   space   at   the   surface   of   the   ocean  
+on   the   board,   and   then   take   a   resource   cube  
+of   the   type   marked   “Setup”   on   the   deposit   tile  
+below   them.   
+ 
+You   will   probably   want   to    avoid   the  
+right-most   2   spaces,    as   those   spaces   are  
+currently   blocked   by   Jupiter   and   will   not  
+receive   any   sunlight   during   the   first   round.  
+Gameplay  
+The   game   proceeds   for   up   to   7   rounds.   The   Jupiter   token   serves   as   a   round   marker.   It  
+begins   on   the   right   edge   of   the   board   and   moves   1   space   to   the   left   each   round.  
+ 
+Each   round   proceeds   through   3   phases:   Sunlight   Phase,   Action   Phase,   and   Cleanup   Phase.  
+Sunlight   Phase  
+During   the   sunlight   phase,   each   sunlight   icon   shines   on   any   surface   vessels  
+immediately   below   it,   unless   it   is   blocked   by   either:   a)   the   Jupiter   token,   or   b)   a  
+4  
+
+resource   cube   in   the   atmosphere   layer.   Surface   vessels   do   not   block   sunlight   from   other  
+surface   vessels.  
+ 
+Follow   any   directions   on   your   mat,   technology,   or   colony   cards   denoted   with   a   sunlight  
+icon   for   each   of   the   3   columns   (except   for   any   that   are   blocked).   This   generally   means  
+you   will   receive   6   electricity   during   this   phase,   and   would   advance   your   electricity   token  
+6   spaces   on   your   battery   track   (up   to   a   maximum   of   9).  
+Diesel   Engine  
+After   receiving   sunlight,   you   may   spend   a   hydrocarbon   cube   to   generate  
+6   additional   electricity   (up   to   a   maximum   of   9).  
+ 
+Instead   of   placing   the   hydrocarbon   cube   back   in   the   supply,   add   it   to   the  
+atmosphere   track   in   your   vessel’s   current   location.   If   there   are   no   such  
+spots   available,   you   cannot   use   the   Diesel   Engine   action.  
+Action   Phase  
+This   is   the   phase   where   all   player   actions   are   taken.   Beginning   with   the   player   who   has  
+the   first-player   marker,   the   round   proceeds   clockwise   in   turns.   On   your   turn,   you   may  
+either   place   a   worker   or   group   of   workers   on   a   single   action   space,   or   pass.   Once   you  
+pass,   your   turns   are   skipped   for   the   rest   of   the   round.  
+Placing   workers  
+A   worker   can   be   placed   on   any   octagon   space.    These   will   typically   be   action   spaces   on  
+the   main   board   or   colony   cards.  
+ 
+Placing   a   worker   has   an   immediate   effect.   A   red   box   (-)   indicates   a   cost   to   place   and   a  
+green   box   (+)   indicates   the   benefit   of   placing.   You   must   be   able   to   pay   the   cost   to   place  
+the   worker.   Workers   are   reclaimed   at   the   end   of   each   round   (unless   otherwise   noted).  
+ 
+Spaces   marked   with   a   multiple-octagon   icon   mean   that   any   number   of   workers  
+can   be   placed   there   over   the   course   of   a   round.    You   can   place   1   worker   per   turn,  
+and   each   worker   placed   performs   the   action.  
+ 
+Spaces   marked   with   a   single   octagon   icon   can   only   hold   workers   from   a   single  
+player   at   once.   If   another   player   has   already   performed   this   action   during   this  
+round,   you   must   place   1   more   worker   than   them   to   bump   them   and   perform   the  
+action.   Remove   the   other   player’s   worker(s)   and   return   them   to   their   player   board.   Their  
+workers   can   be   used   again   during   subsequent   turns   in   this   round.   You   may   bump   your  
+own   pieces   following   these   same   rules   to   reuse   an   action   space   during   the   same   round.  
+5  
+
+ 
+If   an   action   space   has   an   arrow   inside   it,   you   may   immediately   take   another   turn   after  
+completing   this   action.  
+ 
+The   board   action   spaces   are   described   in   more   detail   in   the    Board   actions    section.  
+Moving   your   surface   vessel  
+At   any   time   during   your   turn,   you   may   move   you   surface   vessel   any   number   of   spaces  
+horizontally.   However,   the   surface   of   the   water   must   be   at   the   same   level   to   move  
+between   adjacent   spaces.  
+ 
+2   or   more   surface   vehicles   can   occupy   the   same   space.  
+Using   Colony   Cards  
+There   are   three   basic   actions   printed   on   the   game   board:    Basic   Income,   Hire   a   Worker,  
+and   Special   Election.    Lineae   also   contains   an   optional   deck   of   colony   cards   which  
+provide   additional   actions   that   become   available   throughout   the   game.    After   each   rocket  
+launches,   it   may   be   replaced   with   a   colony   card   which   can   be   used   or   which   grants  
+additional   benefits   to   the   player   or   players   whose   surface   vessel   is   located   below   each  
+card.  
+ 
+Each   colony   card   has   a   priority   number   and   at   the   end   of   the   2nd,   4th,   and   6th   round   the  
+lowest   numbered   cards   will   be   “promoted”   from   the   rocket   row   --   where   they   can   only  
+be   used   by   players   in   a   specific   location   --   up   to   the   Europa   City   row   to   replace   one   of   the  
+basic   actions.    Colony   cards   that   have   been   promoted   in   this   way   can   be   used   regardless  
+of   the   player’s   location.  
+Cleanup   Phase  
+After   all   players   have   passed,   check   the   game   end   conditions:  
+●Have   all   8   rockets   have   been   launched?  
+●Was   this   the   7th   round   (i.e.   Jupiter   was   on   the   leftmost   space   during   this   round)?  
+ 
+If   either   condition   is   true,   the   game   is   over.   Proceed   with   the    Game   End    section   for  
+details.   Otherwise,   the   cleanup   phase   is   performed   to   get   the   board   ready   for   the   next  
+round.  
+ 
+During   the   cleanup   phase,   perform   these   tasks   in   order:  
+1 .Advance   Jupiter :   Slide   the   Jupiter   marker   1   space   to   the   left.  
+2 .Dissolve   Minerals :   For   every   mineral   column   above   a   mineral   deposit   tile,   place  
+a   resource   cube   of   the   specified   type   on   the   first   empty   space   above   the   deposit  
+6  
+tile.   Skip   past   spaces   that   already   have   a   resource   cube   or   that   contain   a  
+submersible   (i.e.   place   the   cube   on   the   space   above   them).   If   all   spaces   in   a  
+column   are   full,   no   cubes   are   placed   for   that   column.  
+3 .Reset   Workers :   All   players   retrieve   their   workers   from   the   board   and   place   them  
+back   on   their   player   boards.  
+4 .Promote   Colony   Building    (rounds   2/4/6   only):   Move   the   revealed   colony   card  
+with   the   lowest   number   over   the   basic   action   in   Europa   City   that   matches   the  
+round   indicated.    That   basic   action   is   no   longer   available.   Replace   that   colony   card  
+with   a   new   one   from   the   Colony   Deck.    If   no   colony   cards   had   been   revealed,  
+promote   the   top   card   of   the   Colony   Deck.  
+Game   End  
+The   game   ends   at   the   end   of   the   7th   round,   or   at   the   end   of   a   round   where   all   8   rockets  
+have   been   launched.   Add   up   the   VP   from   each   of   your   technology   cards   (denoted   with   a  
+purple   star)   and   add   them   to   your   score.  
+ 
+Finally,   you   may   convert   your   remaining   resources   to   VP   as   follows:  
+●Each   $5   is   worth   1   VP.  
+●Each   pair   of   resource   cubes   of   the   same   type   is   worth   1   VP.   You   may   use  
+immediate   effects   from   your   technology   cards   when   converting   resources   to   VP.  
+ 
+The   player   with   the   most   VP   wins!    In   the   event   of   a   tie,   the   player   who   launched   the  
+most   rockets   is   the   winner.  
+Solo   variant  
+Play   as   usual,   but   try   to   launch   all   8   rockets   by   yourself   before   the   7th   round   ends.   Keep  
+track   of   your   score   and   try   to   beat   it   next   time   you   play.  
+   
+7  
+Board   actions  
+Universal   Basic   Income  
+Place   a   worker   here   and   take   $2.   Any   number   of   tokens   can   be   placed   in  
+this   spot   each   round.   Players   may   immediately   place   another   worker   after  
+placing   a   worker   in   this   spot.  
+Hire   a   Worker  
+Place   a   worker   here   to   recruit   another   worker.   Pay   $4   to   recruit   your   4th  
+worker,   $5   to   recruit   your   5th   worker,   $6   for   your   6th   worker,   etc.   Take   a  
+new   worker   from   the   supply   and   place   it   on   this   spot.   Retrieve   it   along  
+with   your   other   workers   at   the   end   of   the   round.  
+ 
+If   you   have   no   more   workers   in   the   supply,   you   may   remove   a   worker  
+from   one   of   the   excavation   tracks.   Recruited   workers   can   no   longer   be  
+placed   on   excavation   tracks.  
+Special   Election  
+Place   a   worker   here   to   take   the   First   Player   marker.   If   another   player   has  
+already   placed   a   worker   in   this   spot   during   this   round,   you   can   bump  
+them   by   placing   1   more   worker   than   they   did.   If   you   do,   take   the   First  
+Player   marker   from   them.  
+Launch   Pad  
+Place   a   worker   here   to   load   1   or   more   resource   cubes   from   your   cargo   bay  
+onto   the   rocket   card   at   the   same   location   as   your   surface   vessel.   Each  
+cube   placed   on   the   card   must   match   the   spot   that   it   covers.   Earn   1   VP   for  
+the   first   cube,   2   VP   for   the   second   cube,   and   3   VP   for   each   subsequent  
+cube   loaded   in   the   same   turn.   Loaded   cubes   stay   on   the   rocket   card   until  
+all   spaces   have   been   filled.  
+Launching   a   Rock et  
+If   you   loaded   a   cube   onto   the   last   spot   on   a   card,   you   have   launched   the   rocket.   Return   its  
+cubes   to   the   supply   and   keep   the   card   (it   is   a   tiebreaker).  
+ 
+As   a   bonus   for   launching   the   rocket,   choose   any   remaining   card   from   the   Technology  
+Deck.   Players   are   limited   to   2   technology   cards.    If   you   already   have   2   technology   cards,  
+you   may   take   a   new   one   but   must   put   one   back   in   the   deck.  
+ 
+8  
+
+Unless   you   are   playing   the   Starter   Game,   replace   the   rocket   card   with   the   top   card   off   of  
+the   Colony   Deck.    This   colony   card   is   now   available   for   use   by   any   player   whose   surface  
+vessel   is   at   the   space   below   it.    If   there   are   no   cards   remaining   in   the   Colony   Deck,   simply  
+leave   the   rocket   space   empty.  
+Submersibles  
+There   are   6   shared   submersible   vehicles   which   can   be   moved   around   under   the   surface  
+of   the   water   and   which   can   pick-up   and   carry   around   mineral   cubes.   Players   can   move   a  
+submersible   by   placing   a   worker   on   the   submersible   action   space.    You   may   move   the  
+submersible   1   space   for   free,   but   must   then   pay   1   electricity   per   additional   space   moved.  
+Submersibles   cannot   move   diagonally,   but   can   move   through   locks   and   across   gaps.  
+ 
+Every   time   a   submersible   moves   into   a   space   containing   a   resource   cube   and   if   there   is  
+room   in   the   submersible’s   hold,   you   may   move   the   cube   to   its   hold   and   take   $1.   A  
+submersible   cannot   end   its   movement   on   a   space   occupied   by   a   cube   or   another  
+submersible.  
+ 
+If   a   submersible   is   at   the   surface   of   the   water   and  
+your   surface   vessel   is   above   it,   you   may   dock   with  
+the   submersible.   Pay   $1   per   cube   to   remove   any  
+number   of   resource   cubes   from   the   submersible  
+and   move   them   to   your   own   cargo   bay.   Docking  
+with   a   submersible   ends   your   turn.    You   cannot  
+move   the   submersible   additional   spaces   after  
+docking   during   this   turn   (but   may   bump   your  
+worker   to   move   the   same   submersible   again   during   your   next   turn).  
+ 
+If   a   submersible   is   at   the   ocean   floor,   you   may   excavate   the   mineral   deposit   below   it.  
+Move   a   resource   cube   of   the   type   indicated   on   the   mineral   deposit   tile   onto   the  
+submersible’s   hold.   You   may   not   excavate   the   same   tile   more   than   once   per   turn.   If   you  
+have   a   worker   on   this   deposit’s   excavation   track   already,   advance   it   1   space   and   take   the  
+bonus   specified   (1   VP;   1   VP   and   move   a   cube   of   your   choice   from   the   supply   to   your  
+cargo   bay;   2   VP;   1   VP   and   a   technology   card;   and   finally  
+3   VP).   If   not,   place   1   of   your   workers    from   the   supply  
+on   the   leftmost   space   on   the   track   and   earn   1   VP.   If   you  
+have   no   more   workers   in   the   supply,   you   can   still  
+perform   the   excavation   but   do   not   receive   the   bonus.  
+The   last   space   on   each   track   can   only   be   occupied   by  
+one   player.  
+ 
+ 
+ 
+9  
+
+ 
+Locks  
+There   are   4   locks   distributed   through   the   ocean.   Each   has   an   action   space.  
+ 
+Place   a   worker   in   one   of   these   spaces   to   toggle   the   lock   (i.e.   open   if   it   is   closed,  
+close   if   it   is   open).   Then   perform   the   following   procedures:  
+●First,   all   other   players   have   an   opportunity   to   move   their   surface   vessel   as  
+described   in    Moving   your   surface   vessel .   However,   each   player   that  
+chooses   to   move   at   this   time   must   pay   you   $1   to   do   so   (as   a   toll).  
+●Now,   add   or   remove   the   lock   token   to   toggle   the   lock’s   state.  
+●If   the   lock   was   opened   during   this   phase,   some   water   tiles   will   now   be   able   to  
+slide   to   the   right.   If   there   is   a   water-tile-sized   hole,   this   tile   will   drop   into   it   (along  
+with   any   resource   cubes   on   that   tile).   Water   that   reaches   the   right   side   of   the  
+board   flows   out   of   the   board   and   is   placed   back   on   the   stack   on   the   left   side.   If   any  
+submersible   tokens   flowed   off   the   board,   place   them   back   on   their   starting  
+location   (and   remove   any   cube   that   was   already   present   in   that   space).  
+●If   the   lock   was   closed   during   this   phase,   place   a   new   water   tile   on   the   left   side   of  
+the   board   and   slide   it   along   the   top   of   the   ocean   surface   to   the   right.   Again,   it   will  
+drop   into   any   empty   holes.   Continue   until   no   holes   remain.  
+ 
+You   may   immediately   place   another   worker   after   placing   a   worker   in   this   spot.  
+   
+10  
+
+Sample   Turn   #1  
+It   is   the   blue   player’s   turn   in   round   1.   They   place   1   of   their  
+workers   on   the   action   space   to   take   control   of   the   E  
+submersible,   which   begins   at   the   ocean   floor   above   the   silica  
+deposit   tile.  
+ 
+They   then   spend   5   electricity   to   move   the   submersible   as  
+follows:  
+1 .Down   one   space.    This   movement   is   free   and   does   not  
+cost   electricity.  
+2.Excavates   the   silica   deposit   tile,   which   moves   a   silica  
+cube   into   submersible   E’s   hold.   This   also   places   a  
+worker   token   from   the   supply   onto   the   first   space   on  
+the   excavation   track   and   gives   them   1   VP.  
+3.Moves   the   submersible   1   space   to   the   left,   onto   a   space  
+occupied   by   a   hydrocarbon   cube.   This   hydrocarbon  
+cube   moves   to   E’s   hold   and   gives   the   player   $1.  
+4.Moves   the   submersible   another   space   to   the   left,   onto   a  
+space   occupied   by   a   sulfur   cube.    This   sulfur   cube  
+moves   to   E’s   hold   and   gives   the   player   another   $1.  
+5.Moves   the   submersible   up   3   spaces,   until   it   reaches   the  
+surface   of   the   water.  
+6.Docks   with   the   player’s   surface   vessel,   which   needs   to   move   left   to   be   above   the  
+submersible.   This   movement   is   allowed   because   the   water   is   at   the   same   level.  
+ 
+During   docking,   the   blue   player   decides   to   purchase   the   hydrocarbon   and   sulfur   cubes  
+from   submersible   E’s   hold   for   $1   each.   These   are   removed   from   E’s   hold   and   moved   to  
+their   cargo   bay.    The   silica   cube   is   left   on   the   submersible.  
+ 
+The   blue   player   spent   1   worker   and   5   electricity   and   earned   1   VP,   a   sulfur   and   a  
+hydrocarbon   cube.   Docking   with   the   submersible   ends   the   player’s   turn   even   if   they   had  
+additional   electricity   they   wanted   to   spend.  
+ 
+Another   player   may   take   control   of   submersible   E   during   this   round   by   placing   2   of   their  
+workers   to   bump   the   blue   player’s   1   worker.   That   player   could   dock   with   E   to   purchase  
+any   remaining   cubes   and/or   move   it   to   pick   up   more   cubes.   Workers   reset   between  
+rounds,   so   control   of   submersible   E   will   be   up   for   grabs   by   any   player   next   round.  
+   
+11  
+
+Sample   Turn   #2  
+It   is   the   blue   player’s   turn   again   in   round   3.    They   have   the   2  
+iron   cubes   and   1   silica   cube   that   are   necessary   to   complete  
+the   “Jovian   Semiconductor”   rocket   and   would   like   to   do   so.  
+ 
+Unfortunately   they   cannot   move   from   their   current   location  
+to   the   location   of   that   rocket   as   the   water’s   surface   is   not   at  
+the   same   level.  
+ 
+To   get   there,   they   first   place   1   of   their   workers   on   the   action  
+space   below   the   lock   immediately   to   their   right.    After  
+offering   other   players   a   chance   to   move,   they   remove   this  
+lock   token   and   slide   all   of   the   water   tiles   that   are   no   longer  
+locked   in   place   to   the   right.   In   this   case   they   will   flow   off   the  
+board   on   the   far   right   side.    The   A   submersible   will   also   flow  
+off   the   board   and   be   placed   back   in   its   original   location   as  
+marked   on   the   board.  
+ 
+Because   the   lock   action   spaces   have   an   arrow   on   them,   this  
+indicates   that   the   blue   player   can  
+immediately   take   a   second   turn.  
+ 
+For   their   second   turn,   the   blue   player   moves   their   surface  
+vessel   to   the   location   of   the   Jovian   Semiconductors   rocket   and  
+places   1   worker   token   on   the   Launch   Pad.    They   place   2   iron  
+and   1   silica   cube   from   their   cargo   hold   on   the   rocket,   and  
+earn   6   VP   for   placing   3   cubes   as   indicated   on   the   Launch   Pad  
+space.  
+ 
+Because   the   rocket   is   now   filled,   they   will   remove   the   cubes  
+from   it   and   place   them   back   in   the   supply.    They   keep   the  
+rocket   card   (face   down)   as   a   tiebreaker.    As   a   bonus   for  
+launching   the   rocket,   they   can   choose   any   card   from   the  
+Technology   Deck.  
+ 
+Finally,   since   we   are   not   playing   the   Starter   Game,   the   player  
+will   take   the   top   card   off   the   Colony   Deck   and   place   it   in   the  
+space   left   behind   by   the   rocket.  
+12  
+
+Reference  
+Technology   Cards  
+ 
+Colony   Cards  
+ 
+Optional   Modules  
+●Biogenesis :   adds   a   sixth   resource   cube   type   representing   algae,   which   spawn   at  
+the   surface   during   the   Sunlight   Phase.    Additional   cards   are   provided   to   breed  
+algae,   convert   it   into   hydrocarbon,   and   mix   it   with   salt   to   super-charges   workers.  
+●Reactor   Core :   includes   a   rondel   with   resource   cubes   which   can   be   used   to  
+borrow   resources   and   convert   resources   into   other   resources   using   electricity.  
+13  
+
