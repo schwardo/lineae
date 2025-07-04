@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.prompt import Prompt, IntPrompt, Confirm
 
 from ..core.game import Game
-from ..core.constants import Position, ResourceType, GamePhase, RESOURCE_ABBREVIATIONS
+from ..core.constants import Position, ResourceType, GamePhase, RESOURCE_ABBREVIATIONS, BOARD_WIDTH, BOARD_HEIGHT
 from ..core.actions import (
     PassAction, BasicIncomeAction, HireWorkerAction,
     SpecialElectionAction, MoveVesselAction, MoveSubmersibleAction,
@@ -36,7 +36,9 @@ class GameCLI:
             if deposit:
                 abbrev = RESOURCE_ABBREVIATIONS[deposit.setup_bonus]
                 color = RICH_COLORS[deposit.setup_bonus]
-                self.console.print(f"  Position {i*2}: [{color}]{abbrev}[/] setup bonus")
+                start_x = i * 6
+                end_x = i * 6 + 5
+                self.console.print(f"  Positions {start_x}-{end_x}: [{color}]{abbrev}[/] setup bonus")
         
         vessel_positions = {}
         taken_positions = set()
@@ -49,24 +51,25 @@ class GameCLI:
             
             # Show available positions
             available = []
-            for x in range(8):
+            for x in range(BOARD_WIDTH):
                 if x not in taken_positions:
                     status = ""
-                    if x >= 6:
+                    # Jupiter blocks rightmost 2 positions based on its position
+                    if x >= BOARD_WIDTH - 2:
                         status = " [red](blocked by Jupiter)[/]"
                     available.append(f"{x}{status}")
             
             self.console.print(f"Available positions: {', '.join(available)}")
             
             # Get choice
-            valid_choices = [str(x) for x in range(8) if x not in taken_positions]
+            valid_choices = [str(x) for x in range(BOARD_WIDTH) if x not in taken_positions]
             pos_x = IntPrompt.ask("Choose position", choices=valid_choices)
             
             vessel_positions[player.id] = pos_x
             taken_positions.add(pos_x)
             
             # Show what resource they'll get
-            deposit_idx = pos_x // 2
+            deposit_idx = pos_x // 6
             if deposit_idx < len(self.game.board.deposits):
                 deposit = self.game.board.deposits[deposit_idx]
                 if deposit:
@@ -108,9 +111,32 @@ class GameCLI:
         
         # Allow diesel engine use during sunlight phase
         for player in self.game.players:
-            if player.cargo_bay.has(ResourceType.HYDROCARBON):
+            vessel_pos = self.game.board.vessel_positions.get(player.id)
+            if vessel_pos and player.cargo_bay.has(ResourceType.HYDROCARBON):
                 if Confirm.ask(f"\n{player.name}: Use diesel engine for 6 extra electricity? (costs 1 hydrocarbon)"):
-                    action = UseDieselAction(player.id)
+                    # Check if current position is available
+                    if self.game.board.atmosphere.get(vessel_pos.x, 0) > 0:
+                        # Need to choose a different position
+                        reachable = []
+                        water_level = self.game.board.get_water_level_at_x(vessel_pos.x)
+                        for x in range(BOARD_WIDTH):
+                            if (self.game.board.get_water_level_at_x(x) == water_level and
+                                self.game.board.atmosphere.get(x, 0) == 0):
+                                reachable.append(x)
+                        
+                        if not reachable:
+                            self.console.print("[red]No reachable positions available for pollution![/]")
+                            continue
+                        
+                        choices = [str(x) for x in reachable]
+                        pollution_x = IntPrompt.ask(
+                            f"Choose position for pollution (reachable: {', '.join(choices)})",
+                            choices=choices
+                        )
+                        action = UseDieselAction(player.id, pollution_x)
+                    else:
+                        action = UseDieselAction(player.id)
+                    
                     result = self.game.execute_action(action)
                     display_action_result(result)
         
@@ -198,7 +224,7 @@ class GameCLI:
             current_water_level = self.game.board.get_water_level_at_x(current_x)
             valid_destinations = []
             
-            for x in range(8):
+            for x in range(BOARD_WIDTH):
                 if x == current_x:
                     continue
                 # Check if water level allows movement to this position
@@ -307,7 +333,7 @@ class GameCLI:
             ]
             
             for direction, pos in directions:
-                if 0 <= pos.x < 8 and 0 <= pos.y < 10:
+                if 0 <= pos.x < BOARD_WIDTH and 0 <= pos.y < BOARD_HEIGHT:
                     space = self.game.board.ocean[pos]
                     if pos == current_pos or space.can_enter() or space.resource:
                         valid_moves.append((direction, pos))
@@ -318,7 +344,7 @@ class GameCLI:
                 info = []
                 if space.resource:
                     info.append(f"has {space.resource.value}")
-                if pos.y == 9:  # Ocean floor
+                if pos.y == BOARD_HEIGHT - 1:  # Ocean floor
                     deposit_info = self.game.board.get_deposit_below(pos)
                     if deposit_info:
                         info.append("can excavate")
@@ -354,7 +380,7 @@ class GameCLI:
         final_pos = path[-1]
         
         # Check excavation
-        if final_pos.y == 9:
+        if final_pos.y == BOARD_HEIGHT - 1:
             deposit_info = self.game.board.get_deposit_below(final_pos)
             if deposit_info and sub.has_space():
                 if Confirm.ask("Excavate mineral deposit?"):

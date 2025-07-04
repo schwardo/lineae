@@ -57,13 +57,15 @@ def display_board(game: Game) -> None:
         separator.append("---")
     grid.append(separator)
     
-    # Add header row with sunlight/Jupiter
+        # Add header row with sunlight/Jupiter
     sun_row = ["  "]  # Space for row labels
     for x in range(BOARD_WIDTH):
         if x >= BOARD_WIDTH - 2 - board.jupiter_position:
             sun_row.append(f"[bold yellow]{SYMBOLS['jupiter']}[/]")
         elif board.atmosphere.get(x, 0) > 0:
-            sun_row.append(f"[magenta]●[/]")
+            # Show pollution count
+            count = board.atmosphere.get(x, 0)
+            sun_row.append(f"[magenta]●{count}[/]")
         else:
             sun_row.append(f"[yellow]{SYMBOLS['sun']}[/]")
     grid.append(sun_row)
@@ -122,8 +124,8 @@ def display_board(game: Game) -> None:
     # Add deposits at bottom
     deposit_row = ["DEP"]  # Label for deposits
     for i in range(BOARD_WIDTH):
-        deposit_idx = i // 2
-        if i % 2 == 0 and deposit_idx < len(board.deposits):
+        deposit_idx = i // 6
+        if deposit_idx < len(board.deposits):
             deposit = board.deposits[deposit_idx]
             if deposit:
                 color = RICH_COLORS[deposit.resource_type]
@@ -261,10 +263,12 @@ def display_mineral_deposits(game: Game) -> None:
     
     for i, deposit in enumerate(game.board.deposits):
         if deposit:
-            # Format dissolving resources (2 per round)
-            dissolve_color = RICH_COLORS[deposit.resource_type]
-            dissolve_abbrev = RESOURCE_ABBREVIATIONS[deposit.resource_type]
-            dissolve_str = f"[{dissolve_color}]{dissolve_abbrev} {dissolve_abbrev}[/]"
+            # Format dissolving resources (2 per round - alternating pattern)
+            primary_color = RICH_COLORS[deposit.resource_type]
+            primary_abbrev = RESOURCE_ABBREVIATIONS[deposit.resource_type]
+            secondary_color = RICH_COLORS[deposit.secondary_resource_type]
+            secondary_abbrev = RESOURCE_ABBREVIATIONS[deposit.secondary_resource_type]
+            dissolve_str = f"[{primary_color}]{primary_abbrev}[/]/[{secondary_color}]{secondary_abbrev}[/] x2"
             
             # Format excavation resource
             excavate_color = RICH_COLORS[deposit.resource_type]
@@ -290,7 +294,7 @@ def display_mineral_deposits(game: Game) -> None:
                 track_str += f"[{len(deposit.excavation_track)}/5]"
             
             deposits_table.add_row(
-                f"x={i*2}",
+                f"x={i*6}-{i*6+5}",
                 dissolve_str,
                 excavate_str,
                 setup_str,

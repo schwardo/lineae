@@ -94,14 +94,14 @@ class Game:
         Execute sunlight phase. Returns electricity generated per player.
         """
         electricity_generated = {}
-        sunlit_positions = self.board.get_sunlight_positions()
         
         for player in self.players:
             vessel_pos = self.board.vessel_positions.get(player.id)
-            if vessel_pos and vessel_pos.x in sunlit_positions:
-                # Each sunlit position gives 6 electricity
-                player.add_electricity(6)
-                electricity_generated[player.name] = 6
+            if vessel_pos:
+                # Get electricity considering pollution
+                electricity = self.board.get_electricity_at_position(vessel_pos.x)
+                player.add_electricity(electricity)
+                electricity_generated[player.name] = electricity
             else:
                 electricity_generated[player.name] = 0
         

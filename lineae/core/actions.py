@@ -83,8 +83,11 @@ class LoadRocketAction(Action):
 @dataclass
 class UseDieselAction(Action):
     """Use diesel engine to generate electricity."""
-    def __init__(self, player_id: int):
+    pollution_x: int = -1  # X position to place pollution
+    
+    def __init__(self, player_id: int, pollution_x: int = -1):
         super().__init__(ActionType.USE_DIESEL, player_id, 0)
+        self.pollution_x = pollution_x
 
 
 class ActionValidator:
@@ -229,10 +232,25 @@ class ActionValidator:
         if not player.cargo_bay.has(ResourceType.HYDROCARBON):
             return False, "No hydrocarbon available"
         
-        # Check if atmosphere slot available at vessel position
         vessel_pos = self.game.board.vessel_positions.get(player.id)
         if not vessel_pos:
             return False, "Vessel not placed"
+        
+        # If pollution_x not specified, check if current position is available
+        if action.pollution_x == -1:
+            if self.game.board.atmosphere.get(vessel_pos.x, 0) > 0:
+                return False, "Current position already has pollution - specify another reachable position"
+        else:
+            # Check if specified position is reachable (same water level)
+            current_water_level = self.game.board.get_water_level_at_x(vessel_pos.x)
+            target_water_level = self.game.board.get_water_level_at_x(action.pollution_x)
+            
+            if current_water_level != target_water_level:
+                return False, "Target position not reachable (different water level)"
+            
+            # Check if target position already has pollution
+            if self.game.board.atmosphere.get(action.pollution_x, 0) > 0:
+                return False, "Target position already has pollution"
         
         return True, None
 
@@ -461,13 +479,14 @@ class ActionExecutor:
         player = self.game.get_player(action.player_id)
         
         if player.use_diesel_engine():
-            # Add to atmosphere
+            # Add to atmosphere at specified position (or current if not specified)
             vessel_pos = self.game.board.vessel_positions[player.id]
-            self.game.board.add_to_atmosphere(vessel_pos.x)
+            pollution_x = action.pollution_x if action.pollution_x != -1 else vessel_pos.x
+            self.game.board.add_to_atmosphere(pollution_x)
             
             return {
                 "success": True,
-                "message": f"{player.name} used diesel engine for 6 electricity"
+                "message": f"{player.name} used diesel engine for 6 electricity, placing pollution at x={pollution_x}"
             }
         
         return {"success": False, "error": "Failed to use diesel engine"}

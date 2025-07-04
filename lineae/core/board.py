@@ -75,8 +75,8 @@ class Board:
         # Surface vessels (player positions)
         self.vessel_positions: Dict[int, Position] = {}  # player_id -> position
         
-        # Rockets
-        self.rockets: List[Optional[Rocket]] = [None] * 8
+        # Rockets (8 rockets spread across 24 positions)
+        self.rockets: List[Optional[Rocket]] = [None] * 24
         
         # Mineral deposits
         self.deposits: List[Optional[MineralDeposit]] = [None] * 4
@@ -106,8 +106,10 @@ class Board:
             setup_bonus = random.choice(DEPOSIT_TYPES)
             self.deposits[i] = MineralDeposit(resource_type, setup_bonus)
             
-            # Place initial resource cube above deposit
-            self.ocean[Position(i * 2, BOARD_HEIGHT - 1)].add_resource(resource_type)
+            # Place initial resource cubes above deposit (one in each of the 6 columns)
+            for col in range(6):
+                x = i * 6 + col
+                self.ocean[Position(x, BOARD_HEIGHT - 1)].add_resource(resource_type)
         
         # Generate random rockets
         self._generate_rockets()
@@ -137,7 +139,9 @@ class Board:
             "Lunar Base", "Deep Space Explorer"
         ]
         
-        for i in range(8):
+        # Place 8 rockets evenly across 24 positions
+        rocket_positions = [0, 3, 6, 9, 12, 15, 18, 21]
+        for i, pos in enumerate(rocket_positions):
             # Random resource requirements (2-5 cubes total)
             num_cubes = random.randint(2, 5)
             requirements = {}
@@ -146,7 +150,7 @@ class Board:
                 resource = random.choice(list(ResourceType))
                 requirements[resource] = requirements.get(resource, 0) + 1
             
-            self.rockets[i] = Rocket(rocket_names[i], requirements, i)
+            self.rockets[pos] = Rocket(rocket_names[i], requirements, pos)
     
     def place_submersible(self, name: str, position: Position) -> bool:
         """Place a submersible at a position."""
@@ -275,13 +279,19 @@ class Board:
             if x >= BOARD_WIDTH - 2 - self.jupiter_position:
                 continue
             
-            # Check if blocked by atmosphere
-            if self.atmosphere.get(x, 0) > 0:
-                continue
-            
             sunlit.add(x)
         
         return sunlit
+    
+    def get_electricity_at_position(self, x: int) -> int:
+        """Get electricity generated at a position (considering pollution)."""
+        if x not in self.get_sunlight_positions():
+            return 0
+        
+        # Each pollution cube blocks 2 electricity
+        pollution_count = self.atmosphere.get(x, 0)
+        electricity = 6 - (pollution_count * 2)
+        return max(0, electricity)
     
     def add_to_atmosphere(self, x: int) -> bool:
         """Add hydrocarbon to atmosphere at x position."""
@@ -302,30 +312,39 @@ class Board:
             if not deposit:
                 continue
             
-            # Each deposit dissolves 2 cubes per round
+            # Each deposit dissolves 2 cubes per round (across its 6 columns)
             cubes_to_add = 2
             
-            # Find lowest empty spaces in column
-            x = i * 2
-            for y in range(BOARD_HEIGHT - 1, -1, -1):
+            # Try to place cubes in the deposit's 6 columns
+            for col in range(6):
                 if cubes_to_add == 0:
                     break
                     
-                pos = Position(x, y)
-                space = self.ocean[pos]
+                x = i * 6 + col
+                # Determine which resource type based on alternating pattern
+                if col % 2 == 0:
+                    resource_type = deposit.resource_type
+                else:
+                    resource_type = deposit.secondary_resource_type
                 
-                if space.is_empty():
-                    space.add_resource(deposit.resource_type)
-                    cubes_to_add -= 1
+                # Find lowest empty space in this column
+                for y in range(BOARD_HEIGHT - 1, -1, -1):
+                    pos = Position(x, y)
+                    space = self.ocean[pos]
+                    
+                    if space.is_empty():
+                        space.add_resource(resource_type)
+                        cubes_to_add -= 1
+                        break
     
     def get_deposit_below(self, position: Position) -> Optional[Tuple[int, MineralDeposit]]:
         """Get mineral deposit below a position at ocean floor."""
         if position.y != BOARD_HEIGHT - 1:  # Not at ocean floor
             return None
         
-        # Check which deposit column we're in
-        deposit_idx = position.x // 2
-        if deposit_idx < len(self.deposits) and position.x % 2 == 0:
+        # Check which deposit we're in (each deposit spans 6 columns)
+        deposit_idx = position.x // 6
+        if deposit_idx < len(self.deposits):
             deposit = self.deposits[deposit_idx]
             if deposit:
                 return deposit_idx, deposit
