@@ -51,6 +51,14 @@ class GameCLI:
             if amount > 0:
                 self.console.print(f"  {player} gains {amount} electricity")
         
+        # Allow diesel engine use during sunlight phase
+        for player in self.game.players:
+            if player.cargo_bay.has(ResourceType.HYDROCARBON):
+                if Confirm.ask(f"\n{player.name}: Use diesel engine for 6 extra electricity? (costs 1 hydrocarbon)"):
+                    action = UseDieselAction(player.id)
+                    result = self.game.execute_action(action)
+                    display_action_result(result)
+        
         Prompt.ask("\nPress Enter to continue")
         
         # Action phase
@@ -207,7 +215,6 @@ class GameCLI:
                 ("Down", Position(current_pos.x, current_pos.y + 1)),
                 ("Left", Position(current_pos.x - 1, current_pos.y)),
                 ("Right", Position(current_pos.x + 1, current_pos.y)),
-                ("Stay", current_pos)
             ]
             
             for direction, pos in directions:

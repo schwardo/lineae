@@ -62,8 +62,9 @@ class Board:
         # Water tiles and locks
         self.water_tiles: List[Position] = []
         self.locks: Dict[int, bool] = {}  # x-position -> is_open
-        for lock_pos in LOCK_POSITIONS:
-            self.locks[lock_pos] = False  # All locks start closed
+        # Initialize locks: positions 1 and 3 are open, 4 and 6 are closed
+        for i, lock_pos in enumerate(LOCK_POSITIONS):
+            self.locks[lock_pos] = (i < 2)  # First 2 locks are open
         
         # Submersibles
         self.submersibles: Dict[str, Submersible] = {}
@@ -235,15 +236,35 @@ class Board:
             return False
         
         current_pos = self.vessel_positions[player_id]
-        new_pos = Position(new_x, 0)
         
-        # Check if movement is valid (water at same level)
-        # Simplified check - full implementation would verify water levels
+        # Check if new position is valid
         if new_x < 0 or new_x >= BOARD_WIDTH:
             return False
         
-        self.vessel_positions[player_id] = new_pos
+        # Check if water levels allow movement between current and new position
+        # Must check all intermediate positions
+        start_x = min(current_pos.x, new_x)
+        end_x = max(current_pos.x, new_x)
+        
+        # Get water level at starting position
+        start_water_level = self.get_water_level_at_x(start_x)
+        
+        # Check all positions between start and end
+        for x in range(start_x, end_x + 1):
+            if self.get_water_level_at_x(x) != start_water_level:
+                return False
+        
+        # Movement is valid
+        self.vessel_positions[player_id] = Position(new_x, 0)
         return True
+    
+    def get_water_level_at_x(self, x: int) -> int:
+        """Get the water level (y-coordinate of top water) at a given x position."""
+        # Find the highest y-coordinate with water at this x
+        for y in range(BOARD_HEIGHT):
+            if self.ocean[Position(x, y)].has_water:
+                return y
+        return -1  # No water at this x position
     
     def get_sunlight_positions(self) -> Set[int]:
         """Get x-positions receiving sunlight."""
