@@ -32,6 +32,15 @@ RESOURCE_COLORS: Dict[ResourceType, str] = {
     ResourceType.HYDROCARBON: "black"
 }
 
+# Resource Abbreviations (from rule book)
+RESOURCE_ABBREVIATIONS: Dict[ResourceType, str] = {
+    ResourceType.SILICA: "Si",
+    ResourceType.SULFUR: "S",
+    ResourceType.SALT: "NaCl",
+    ResourceType.IRON: "Fe",
+    ResourceType.HYDROCARBON: "HC"
+}
+
 # Action Types
 class ActionType(StrEnum):
     """Types of actions players can take."""
@@ -50,7 +59,7 @@ class ActionType(StrEnum):
 
 # Submersible Configuration
 SUBMERSIBLE_NAMES = ["A", "B", "C", "D", "E", "F"]
-SUBMERSIBLE_CAPACITY = 3
+SUBMERSIBLE_CAPACITY = 4
 
 # Victory Points
 VP_EXCAVATION_TRACK = [1, 1, 2, 1, 3]  # VP earned at each track position

@@ -41,28 +41,29 @@ class Game:
         # Action history for logging
         self.action_history: List[Dict] = []
     
-    def setup_game(self) -> None:
-        """Set up the game board and initial player positions."""
+    def setup_game(self, vessel_positions: Dict[int, int]) -> None:
+        """Set up the game board and initial player positions.
+        
+        Args:
+            vessel_positions: Dict mapping player_id to x position choice
+        """
         self.board.setup_board()
         
-        # Players place vessels in reverse turn order
-        reverse_order = self.player_order.get_reverse_order()
-        available_positions = list(range(6))  # Avoid Jupiter-blocked positions
-        
-        for i, player in enumerate(reverse_order):
-            # Simple placement - spread players out
-            pos_x = available_positions[i % len(available_positions)]
+        # Place vessels based on player choices
+        for player_id, pos_x in vessel_positions.items():
             position = Position(pos_x, 0)
+            self.board.place_vessel(player_id, position)
             
-            self.board.place_vessel(player.id, position)
-            player.vessel_position = position
-            
-            # Give setup bonus resource from deposit below
-            deposit_idx = pos_x // 2
-            if deposit_idx < len(self.board.deposits):
-                deposit = self.board.deposits[deposit_idx]
-                if deposit:
-                    player.cargo_bay.add(deposit.setup_bonus)
+            player = self.get_player(player_id)
+            if player:
+                player.vessel_position = position
+                
+                # Give setup bonus resource from deposit below
+                deposit_idx = pos_x // 2
+                if deposit_idx < len(self.board.deposits):
+                    deposit = self.board.deposits[deposit_idx]
+                    if deposit:
+                        player.cargo_bay.add(deposit.setup_bonus)
     
     def start_new_round(self) -> bool:
         """

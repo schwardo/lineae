@@ -62,9 +62,9 @@ class Board:
         # Water tiles and locks
         self.water_tiles: List[Position] = []
         self.locks: Dict[int, bool] = {}  # x-position -> is_open
-        # Initialize locks: positions 1 and 3 are open, 4 and 6 are closed
+        # Initialize locks: 2 open and 2 closed (alternating pattern)
         for i, lock_pos in enumerate(LOCK_POSITIONS):
-            self.locks[lock_pos] = (i < 2)  # First 2 locks are open
+            self.locks[lock_pos] = (i % 2 == 0)  # Alternating: positions 1 and 4 open, 3 and 6 closed
         
         # Submersibles
         self.submersibles: Dict[str, Submersible] = {}

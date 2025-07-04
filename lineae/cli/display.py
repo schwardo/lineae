@@ -8,7 +8,7 @@ from rich.panel import Panel
 from rich.layout import Layout
 from rich.columns import Columns
 
-from ..core.constants import RESOURCE_COLORS, ResourceType, BOARD_WIDTH, BOARD_HEIGHT, Position
+from ..core.constants import RESOURCE_COLORS, RESOURCE_ABBREVIATIONS, ResourceType, BOARD_WIDTH, BOARD_HEIGHT, Position
 from ..core.game import Game
 
 console = Console()
@@ -46,13 +46,13 @@ def display_board(game: Game) -> None:
     grid = []
     
     # Add header row with column numbers
-    header = ["  "]  # Space for row labels
+    header = ["Y\\X"]  # Space for row labels
     for x in range(BOARD_WIDTH):
         header.append(f" {x} ")
     grid.append(header)
     
     # Add separator after column numbers
-    separator = ["--"]
+    separator = ["---"]
     for _ in range(BOARD_WIDTH):
         separator.append("---")
     grid.append(separator)
@@ -69,14 +69,14 @@ def display_board(game: Game) -> None:
     grid.append(sun_row)
     
     # Add separator
-    separator = ["--"]
+    separator = ["---"]
     for _ in range(BOARD_WIDTH):
         separator.append("---")
     grid.append(separator)
     
     # Add ocean rows
     for y in range(BOARD_HEIGHT):
-        row = [f"{y} "]  # Add row number
+        row = [f" {y} "]  # Add row number
         for x in range(BOARD_WIDTH):
             pos = board.ocean[Position(x, y)]
             cell = ""
@@ -114,13 +114,13 @@ def display_board(game: Game) -> None:
         grid.append(row)
     
     # Add separator before deposits
-    separator = ["--"]
+    separator = ["---"]
     for _ in range(BOARD_WIDTH):
         separator.append("---")
     grid.append(separator)
     
     # Add deposits at bottom
-    deposit_row = ["  "]  # Space for row labels
+    deposit_row = ["DEP"]  # Label for deposits
     for i in range(BOARD_WIDTH):
         deposit_idx = i // 2
         if i % 2 == 0 and deposit_idx < len(board.deposits):
@@ -134,9 +134,9 @@ def display_board(game: Game) -> None:
             deposit_row.append("   ")
     grid.append(deposit_row)
     
-    # Create table
-#    table = Table(show_header=False, show_edge=True, padding=0, box_chars={"mid": "-"})
-    table = Table(show_header=False, show_edge=True, padding=0)
+    # Create table with grid lines
+    from rich.box import SQUARE
+    table = Table(show_header=False, show_edge=True, padding=0, box=SQUARE)
     for _ in range(BOARD_WIDTH + 1):  # +1 for row labels
         table.add_column(width=3)
     
@@ -160,7 +160,8 @@ def display_rockets(game: Game) -> None:
             for resource, count in rocket.required_resources.items():
                 loaded = rocket.loaded_resources.count(resource)
                 color = RICH_COLORS[resource]
-                requirements.append(f"[{color}]{resource.value[0].upper()}: {loaded}/{count}[/]")
+                abbrev = RESOURCE_ABBREVIATIONS[resource]
+                requirements.append(f"[{color}]{abbrev}: {loaded}/{count}[/]")
             
             progress = f"{rocket.loaded_resources.total()}/{sum(rocket.required_resources.values())}"
             rockets_table.add_row(
@@ -184,12 +185,15 @@ def display_player_status(game: Game) -> None:
     players_table.add_column("Resources", style="white")
     
     for player in game.players:
-        # Format resources
+        # Format resources - show individual cubes
         resources = []
         for resource_type, count in player.cargo_bay.get_all().items():
             if count > 0:
                 color = RICH_COLORS[resource_type]
-                resources.append(f"[{color}]{resource_type.value[0].upper()}:{count}[/]")
+                abbrev = RESOURCE_ABBREVIATIONS[resource_type]
+                # Show each cube individually
+                for _ in range(count):
+                    resources.append(f"[{color}]{abbrev}[/]")
         
         # Add special markers
         markers = []
@@ -228,7 +232,14 @@ def display_submersibles(game: Game) -> None:
         for resource_type, count in sub.cargo.get_all().items():
             if count > 0:
                 color = RICH_COLORS[resource_type]
-                cargo.append(f"[{color}]{resource_type.value[0].upper()}:{count}[/]")
+                abbrev = RESOURCE_ABBREVIATIONS[resource_type]
+                # Show each cube individually
+                for _ in range(count):
+                    cargo.append(f"[{color}]{abbrev}[/]")
+        # Show empty slots
+        empty_slots = SUBMERSIBLE_CAPACITY - sub.cargo.total()
+        for _ in range(empty_slots):
+            cargo.append("__")
         
         subs_table.add_row(
             name,
@@ -243,19 +254,27 @@ def display_mineral_deposits(game: Game) -> None:
     """Display mineral deposit status."""
     deposits_table = Table(title="Mineral Deposits", show_header=True)
     deposits_table.add_column("Pos", style="cyan")
-    deposits_table.add_column("Resource", style="white")
+    deposits_table.add_column("Dissolves (x2)", style="white")
+    deposits_table.add_column("Excavation", style="yellow")
     deposits_table.add_column("Setup Bonus", style="green")
-    deposits_table.add_column("Excavation Track", style="yellow")
+    deposits_table.add_column("Excavation Track", style="magenta")
     
     for i, deposit in enumerate(game.board.deposits):
         if deposit:
-            # Format resource type
-            resource_color = RICH_COLORS[deposit.resource_type]
-            resource_str = f"[{resource_color}]{deposit.resource_type.value}[/]"
+            # Format dissolving resources (2 per round)
+            dissolve_color = RICH_COLORS[deposit.resource_type]
+            dissolve_abbrev = RESOURCE_ABBREVIATIONS[deposit.resource_type]
+            dissolve_str = f"[{dissolve_color}]{dissolve_abbrev} {dissolve_abbrev}[/]"
+            
+            # Format excavation resource
+            excavate_color = RICH_COLORS[deposit.resource_type]
+            excavate_abbrev = RESOURCE_ABBREVIATIONS[deposit.resource_type]
+            excavate_str = f"[{excavate_color}]{excavate_abbrev}[/]"
             
             # Format setup bonus
             setup_color = RICH_COLORS[deposit.setup_bonus]
-            setup_str = f"[{setup_color}]{deposit.setup_bonus.value}[/]"
+            setup_abbrev = RESOURCE_ABBREVIATIONS[deposit.setup_bonus]
+            setup_str = f"[{setup_color}]{setup_abbrev}[/]"
             
             # Format excavation track
             track_str = ""
@@ -272,7 +291,8 @@ def display_mineral_deposits(game: Game) -> None:
             
             deposits_table.add_row(
                 f"x={i*2}",
-                resource_str,
+                dissolve_str,
+                excavate_str,
                 setup_str,
                 track_str
             )
