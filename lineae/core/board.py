@@ -1,0 +1,338 @@
+"""Board management for Lineae game."""
+
+from typing import Dict, List, Optional, Set, Tuple
+import random
+from .constants import (
+    BOARD_WIDTH, BOARD_HEIGHT, Position, ResourceType, 
+    LOCK_POSITIONS, INITIAL_SUBMERSIBLE_POSITIONS,
+    SUBMERSIBLE_NAMES, DEPOSIT_TYPES
+)
+from .resources import ResourcePool, Submersible, Rocket, MineralDeposit
+
+class OceanSpace:
+    """Represents a space in the ocean."""
+    
+    def __init__(self, position: Position):
+        self.position = position
+        self.resource: Optional[ResourceType] = None
+        self.submersible: Optional[Submersible] = None
+        self.has_water = False
+    
+    def is_empty(self) -> bool:
+        """Check if space has no resource or submersible."""
+        return self.resource is None and self.submersible is None
+    
+    def can_enter(self) -> bool:
+        """Check if a submersible can enter this space."""
+        return self.resource is None and self.submersible is None
+    
+    def add_resource(self, resource_type: ResourceType) -> bool:
+        """Add a resource cube if space is empty."""
+        if self.is_empty():
+            self.resource = resource_type
+            return True
+        return False
+    
+    def remove_resource(self) -> Optional[ResourceType]:
+        """Remove and return resource from space."""
+        resource = self.resource
+        self.resource = None
+        return resource
+    
+    def __repr__(self) -> str:
+        content = []
+        if self.resource:
+            content.append(f"R:{self.resource.value[0]}")
+        if self.submersible:
+            content.append(f"S:{self.submersible.name}")
+        return f"Space({self.position.x},{self.position.y},[{','.join(content)}])"
+
+
+class Board:
+    """Represents the game board."""
+    
+    def __init__(self):
+        # Initialize ocean grid
+        self.ocean: Dict[Position, OceanSpace] = {}
+        for y in range(BOARD_HEIGHT):
+            for x in range(BOARD_WIDTH):
+                pos = Position(x, y)
+                self.ocean[pos] = OceanSpace(pos)
+        
+        # Water tiles and locks
+        self.water_tiles: List[Position] = []
+        self.locks: Dict[int, bool] = {}  # x-position -> is_open
+        for lock_pos in LOCK_POSITIONS:
+            self.locks[lock_pos] = False  # All locks start closed
+        
+        # Submersibles
+        self.submersibles: Dict[str, Submersible] = {}
+        for name in SUBMERSIBLE_NAMES:
+            sub = Submersible(name)
+            self.submersibles[name] = sub
+        
+        # Surface vessels (player positions)
+        self.vessel_positions: Dict[int, Position] = {}  # player_id -> position
+        
+        # Rockets
+        self.rockets: List[Optional[Rocket]] = [None] * 8
+        
+        # Mineral deposits
+        self.deposits: List[Optional[MineralDeposit]] = [None] * 4
+        
+        # Jupiter position (0-6, where 0 is rightmost)
+        self.jupiter_position = 0
+        
+        # Atmosphere (hydrocarbon cubes blocking sunlight)
+        self.atmosphere: Dict[int, int] = {}  # x-position -> count
+    
+    def setup_board(self) -> None:
+        """Set up initial board state."""
+        # Place submersibles at starting positions
+        for name, pos in INITIAL_SUBMERSIBLE_POSITIONS.items():
+            self.place_submersible(name, pos)
+        
+        # Initialize water tiles
+        self._initialize_water()
+        
+        # Set up mineral deposits (random selection)
+        available_deposits = DEPOSIT_TYPES.copy()
+        random.shuffle(available_deposits)
+        
+        for i in range(4):
+            resource_type = available_deposits[i]
+            # Random setup bonus (could be same as main resource)
+            setup_bonus = random.choice(DEPOSIT_TYPES)
+            self.deposits[i] = MineralDeposit(resource_type, setup_bonus)
+            
+            # Place initial resource cube above deposit
+            self.ocean[Position(i * 2, BOARD_HEIGHT - 1)].add_resource(resource_type)
+        
+        # Generate random rockets
+        self._generate_rockets()
+    
+    def _initialize_water(self) -> None:
+        """Initialize water tiles based on lock positions."""
+        # Water fills from left, stopped by closed locks
+        for y in range(3):  # Top 3 rows have water
+            for x in range(BOARD_WIDTH):
+                # Check if blocked by a lock
+                blocked = False
+                for lock_x in sorted(self.locks.keys()):
+                    if x > lock_x and not self.locks[lock_x]:  # Closed lock
+                        blocked = True
+                        break
+                
+                if not blocked:
+                    pos = Position(x, y)
+                    self.ocean[pos].has_water = True
+                    self.water_tiles.append(pos)
+    
+    def _generate_rockets(self) -> None:
+        """Generate random rocket cards."""
+        rocket_names = [
+            "Orbital Station", "Mars Colony", "Asteroid Miner",
+            "Jupiter Probe", "Research Lab", "Solar Array",
+            "Lunar Base", "Deep Space Explorer"
+        ]
+        
+        for i in range(8):
+            # Random resource requirements (2-5 cubes total)
+            num_cubes = random.randint(2, 5)
+            requirements = {}
+            
+            for _ in range(num_cubes):
+                resource = random.choice(list(ResourceType))
+                requirements[resource] = requirements.get(resource, 0) + 1
+            
+            self.rockets[i] = Rocket(rocket_names[i], requirements, i)
+    
+    def place_submersible(self, name: str, position: Position) -> bool:
+        """Place a submersible at a position."""
+        if name not in self.submersibles:
+            return False
+        
+        space = self.ocean.get(position)
+        if not space or not space.can_enter():
+            return False
+        
+        sub = self.submersibles[name]
+        
+        # Remove from old position if any
+        if sub.position:
+            old_space = self.ocean.get(sub.position)
+            if old_space and old_space.submersible == sub:
+                old_space.submersible = None
+        
+        # Place at new position
+        space.submersible = sub
+        sub.position = position
+        return True
+    
+    def move_submersible(self, name: str, path: List[Position]) -> List[ResourceType]:
+        """
+        Move submersible along path, collecting resources.
+        Returns list of resources collected.
+        """
+        if name not in self.submersibles:
+            return []
+        
+        sub = self.submersibles[name]
+        collected = []
+        
+        for pos in path:
+            # Check if valid move
+            space = self.ocean.get(pos)
+            if not space:
+                break
+            
+            # Collect resource if present and sub has space
+            if space.resource and sub.has_space():
+                resource = space.remove_resource()
+                sub.load(resource)
+                collected.append(resource)
+            
+            # Can't end on occupied space
+            if pos == path[-1] and not space.can_enter():
+                break
+            
+            # Move submersible
+            if pos != path[-1]:  # Don't place on final position yet
+                continue
+                
+            self.place_submersible(name, pos)
+        
+        return collected
+    
+    def toggle_lock(self, lock_x: int) -> bool:
+        """Toggle a lock open/closed. Returns new state."""
+        if lock_x not in self.locks:
+            return False
+        
+        self.locks[lock_x] = not self.locks[lock_x]
+        self._update_water_flow()
+        return self.locks[lock_x]
+    
+    def _update_water_flow(self) -> None:
+        """Update water flow after lock change."""
+        # This is simplified - full implementation would handle
+        # water sliding, dropping into holes, etc.
+        pass
+    
+    def place_vessel(self, player_id: int, position: Position) -> bool:
+        """Place a player's surface vessel."""
+        if position.y != 0:  # Must be at surface
+            return False
+        if position.x < 0 or position.x >= BOARD_WIDTH:
+            return False
+        
+        self.vessel_positions[player_id] = position
+        return True
+    
+    def move_vessel(self, player_id: int, new_x: int) -> bool:
+        """Move vessel horizontally if water level allows."""
+        if player_id not in self.vessel_positions:
+            return False
+        
+        current_pos = self.vessel_positions[player_id]
+        new_pos = Position(new_x, 0)
+        
+        # Check if movement is valid (water at same level)
+        # Simplified check - full implementation would verify water levels
+        if new_x < 0 or new_x >= BOARD_WIDTH:
+            return False
+        
+        self.vessel_positions[player_id] = new_pos
+        return True
+    
+    def get_sunlight_positions(self) -> Set[int]:
+        """Get x-positions receiving sunlight."""
+        sunlit = set()
+        
+        for x in range(BOARD_WIDTH):
+            # Check if blocked by Jupiter
+            if x >= BOARD_WIDTH - 2 - self.jupiter_position:
+                continue
+            
+            # Check if blocked by atmosphere
+            if self.atmosphere.get(x, 0) > 0:
+                continue
+            
+            sunlit.add(x)
+        
+        return sunlit
+    
+    def add_to_atmosphere(self, x: int) -> bool:
+        """Add hydrocarbon to atmosphere at x position."""
+        if x < 0 or x >= BOARD_WIDTH:
+            return False
+        
+        self.atmosphere[x] = self.atmosphere.get(x, 0) + 1
+        return True
+    
+    def advance_jupiter(self) -> None:
+        """Advance Jupiter one space left."""
+        if self.jupiter_position < 6:
+            self.jupiter_position += 1
+    
+    def dissolve_minerals(self) -> None:
+        """Add minerals from deposits at cleanup phase."""
+        for i, deposit in enumerate(self.deposits):
+            if not deposit:
+                continue
+            
+            # Find lowest empty space in column
+            x = i * 2
+            for y in range(BOARD_HEIGHT - 1, -1, -1):
+                pos = Position(x, y)
+                space = self.ocean[pos]
+                
+                if space.is_empty():
+                    space.add_resource(deposit.resource_type)
+                    break
+    
+    def get_deposit_below(self, position: Position) -> Optional[Tuple[int, MineralDeposit]]:
+        """Get mineral deposit below a position at ocean floor."""
+        if position.y != BOARD_HEIGHT - 1:  # Not at ocean floor
+            return None
+        
+        # Check which deposit column we're in
+        deposit_idx = position.x // 2
+        if deposit_idx < len(self.deposits) and position.x % 2 == 0:
+            deposit = self.deposits[deposit_idx]
+            if deposit:
+                return deposit_idx, deposit
+        
+        return None
+    
+    def is_submersible_at_surface(self, name: str) -> bool:
+        """Check if submersible is at water surface."""
+        if name not in self.submersibles:
+            return False
+        
+        sub = self.submersibles[name]
+        if not sub.position:
+            return False
+        
+        # Check if at top row with water
+        return (sub.position.y == 0 and 
+                self.ocean[sub.position].has_water)
+    
+    def get_board_state(self) -> dict:
+        """Get board state for display/logging."""
+        state = {
+            "jupiter_position": self.jupiter_position,
+            "locks": {f"x{k}": "open" if v else "closed" 
+                     for k, v in self.locks.items()},
+            "vessels": {f"P{pid}": f"x{pos.x}" 
+                       for pid, pos in self.vessel_positions.items()},
+            "submersibles": {name: f"({sub.position.x},{sub.position.y})" 
+                           if sub.position else "none"
+                           for name, sub in self.submersibles.items()},
+            "rockets": [{"name": r.name, "progress": f"{r.loaded_resources.total()}/{sum(r.required_resources.values())}"}
+                       if r else None
+                       for r in self.rockets],
+            "deposits": [d.resource_type.value if d else None 
+                        for d in self.deposits]
+        }
+        return state
