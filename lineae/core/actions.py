@@ -1,7 +1,7 @@
 """Game actions and validation for Lineae."""
 
 from typing import List, Optional, Dict, Tuple, Any
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from .constants import (
     ActionType, ResourceType, Position, 
     VP_ROCKET_LOADING, VP_EXCAVATION_TRACK,
@@ -42,7 +42,7 @@ class SpecialElectionAction(Action):
 @dataclass
 class MoveVesselAction(Action):
     """Move surface vessel."""
-    new_x: int
+    new_x: int = 0
     
     def __init__(self, player_id: int, new_x: int):
         super().__init__(ActionType.MOVE_VESSEL, player_id, 0)
@@ -51,8 +51,8 @@ class MoveVesselAction(Action):
 @dataclass
 class MoveSubmersibleAction(Action):
     """Move a submersible."""
-    submersible_name: str
-    path: List[Position]
+    submersible_name: str = ""
+    path: List[Position] = field(default_factory=list)
     excavate: bool = False
     dock: bool = False
     
@@ -60,12 +60,12 @@ class MoveSubmersibleAction(Action):
                  path: List[Position], workers: int = 1):
         super().__init__(ActionType.MOVE_SUBMERSIBLE, player_id, workers)
         self.submersible_name = submersible_name
-        self.path = path
+        self.path = path if path is not None else []
 
 @dataclass
 class ToggleLockAction(Action):
     """Toggle a lock open/closed."""
-    lock_x: int
+    lock_x: int = 0
     
     def __init__(self, player_id: int, lock_x: int):
         super().__init__(ActionType.TOGGLE_LOCK, player_id, 1)
@@ -74,11 +74,11 @@ class ToggleLockAction(Action):
 @dataclass
 class LoadRocketAction(Action):
     """Load resources onto a rocket."""
-    resources: List[ResourceType]
+    resources: List[ResourceType] = field(default_factory=list)
     
     def __init__(self, player_id: int, resources: List[ResourceType]):
         super().__init__(ActionType.LOAD_ROCKET, player_id, 1)
-        self.resources = resources
+        self.resources = resources if resources is not None else []
 
 @dataclass
 class UseDieselAction(Action):
