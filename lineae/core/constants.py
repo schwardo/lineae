@@ -88,18 +88,19 @@ class Position:
         return f"Position({self.x}, {self.y})"
 
 # Lock Positions (x-coordinates where locks are placed)
-# Adjusted for 24-wide board - roughly at 1/8, 3/8, 4/8, 6/8 of board width
-LOCK_POSITIONS = [3, 9, 12, 18]
+# Locks are located between columns X=2-3, 8-9, 14-15, and 20-21
+# We store the left column of each lock pair
+LOCK_POSITIONS = [2, 8, 14, 20]
 
 # Initial Submersible Positions
-# Distributed across 24-wide board at Y=8 (second from bottom)
+# Distributed across 24-wide board at Y=7 (third from bottom)
 INITIAL_SUBMERSIBLE_POSITIONS: Dict[str, Position] = {
-    "A": Position(2, 8),
-    "B": Position(6, 8),
-    "C": Position(10, 8),
-    "D": Position(14, 8),
-    "E": Position(18, 8),
-    "F": Position(22, 8)
+    "A": Position(3, 7),
+    "B": Position(6, 7),
+    "C": Position(10, 7),
+    "D": Position(13, 7),
+    "E": Position(17, 7),
+    "F": Position(20, 7)
 }
 
 # Mineral Deposit Configuration

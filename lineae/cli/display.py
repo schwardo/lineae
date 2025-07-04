@@ -45,19 +45,24 @@ def display_board(game: Game) -> None:
     # Create board grid
     grid = []
     
-    # Add header row with column numbers
+    # Add header row with column numbers and locks
     header = ["Y\\X"]  # Space for row labels
     for x in range(BOARD_WIDTH):
         header.append(f" {x} ")
+        # Add lock column after positions 2, 8, 14, 20
+        if x in [2, 8, 14, 20]:
+            header.append(" L ")
     grid.append(header)
     
     # Add separator after column numbers
     separator = ["---"]
-    for _ in range(BOARD_WIDTH):
+    for x in range(BOARD_WIDTH):
         separator.append("---")
+        if x in [2, 8, 14, 20]:
+            separator.append("---")
     grid.append(separator)
     
-        # Add header row with sunlight/Jupiter
+    # Add header row with sunlight/Jupiter
     sun_row = ["  "]  # Space for row labels
     for x in range(BOARD_WIDTH):
         if x >= BOARD_WIDTH - 2 - board.jupiter_position:
@@ -68,12 +73,17 @@ def display_board(game: Game) -> None:
             sun_row.append(f"[magenta]●{count}[/]")
         else:
             sun_row.append(f"[yellow]{SYMBOLS['sun']}[/]")
+        # Empty lock column
+        if x in [2, 8, 14, 20]:
+            sun_row.append("   ")
     grid.append(sun_row)
     
     # Add separator
     separator = ["---"]
-    for _ in range(BOARD_WIDTH):
+    for x in range(BOARD_WIDTH):
         separator.append("---")
+        if x in [2, 8, 14, 20]:
+            separator.append("---")
     grid.append(separator)
     
     # Add ocean rows
@@ -86,7 +96,9 @@ def display_board(game: Game) -> None:
             # Check for vessel at surface
             if y == 0:
                 for player_id, vessel_pos in board.vessel_positions.items():
-                    if vessel_pos.x == x:
+                    # Vessel is at tile column, display at center mineral column
+                    vessel_display_x = vessel_pos.x * 3 + 1
+                    if vessel_display_x == x:
                         player = game.get_player(player_id)
                         cell += f"[bold]{SYMBOLS['vessel']}[/]"
             
@@ -101,30 +113,39 @@ def display_board(game: Game) -> None:
             # Check for resource
             if pos.resource:
                 color = RICH_COLORS[pos.resource]
-                cell += f"[{color}]{SYMBOLS['resource']}[/]"
-            
-            # Check for lock
-            if y == 0 and x in board.locks:
-                if board.locks[x]:
-                    cell += f"[green]{SYMBOLS['lock_open']}[/]"
-                else:
-                    cell += f"[red]{SYMBOLS['lock_closed']}[/]"
+                abbrev = RESOURCE_ABBREVIATIONS[pos.resource]
+                cell += f"[{color}]{abbrev}[/]"
+            elif pos.submersible is None:
+                # Empty mineral space (no resource, no submersible)
+                cell += "__"
             
             # Pad cell to consistent width and add borders
             cell_content = cell if cell else "   "
             row.append(cell_content)
+            
+            # Add lock column if needed
+            if x in [2, 8, 14, 20]:
+                if y == 0:  # Only show locks at surface
+                    if board.locks[x]:
+                        row.append(f"[green]{SYMBOLS['lock_open']}[/]")
+                    else:
+                        row.append(f"[red]{SYMBOLS['lock_closed']}[/]")
+                else:
+                    row.append("   ")  # Empty for non-surface rows
         grid.append(row)
     
     # Add separator before deposits
     separator = ["---"]
-    for _ in range(BOARD_WIDTH):
+    for x in range(BOARD_WIDTH):
         separator.append("---")
+        if x in [2, 8, 14, 20]:
+            separator.append("---")
     grid.append(separator)
     
     # Add deposits at bottom
     deposit_row = ["DEP"]  # Label for deposits
-    for i in range(BOARD_WIDTH):
-        deposit_idx = i // 6
+    for x in range(BOARD_WIDTH):
+        deposit_idx = x // 6
         if deposit_idx < len(board.deposits):
             deposit = board.deposits[deposit_idx]
             if deposit:
@@ -134,12 +155,16 @@ def display_board(game: Game) -> None:
                 deposit_row.append("   ")
         else:
             deposit_row.append("   ")
+        # Empty lock column
+        if x in [2, 8, 14, 20]:
+            deposit_row.append("   ")
     grid.append(deposit_row)
     
     # Create table with grid lines
     from rich.box import SQUARE
     table = Table(show_header=False, show_edge=True, padding=0, box=SQUARE)
-    for _ in range(BOARD_WIDTH + 1):  # +1 for row labels
+    num_cols = BOARD_WIDTH + 1 + 4  # +1 for row labels, +4 for lock columns
+    for _ in range(num_cols):
         table.add_column(width=3)
     
     for row in grid:
@@ -159,13 +184,25 @@ def display_rockets(game: Game) -> None:
     for i, rocket in enumerate(game.board.rockets):
         if rocket and not rocket.completed_by:
             requirements = []
+            # Show specific requirements
             for resource, count in rocket.required_resources.items():
                 loaded = rocket.loaded_resources.count(resource)
+                # Don't count wildcard in specific progress
+                if rocket.wildcard_resource == resource:
+                    loaded -= 1
                 color = RICH_COLORS[resource]
                 abbrev = RESOURCE_ABBREVIATIONS[resource]
                 requirements.append(f"[{color}]{abbrev}: {loaded}/{count}[/]")
             
-            progress = f"{rocket.loaded_resources.total()}/{sum(rocket.required_resources.values())}"
+            # Show wildcard slot
+            if rocket.wildcard_filled:
+                color = RICH_COLORS[rocket.wildcard_resource]
+                abbrev = RESOURCE_ABBREVIATIONS[rocket.wildcard_resource]
+                requirements.append(f"[white]Wild: [{color}]{abbrev}[/][/]")
+            else:
+                requirements.append("[white]Wild: __[/]")
+            
+            progress = f"{rocket.loaded_resources.total()}/5"
             rockets_table.add_row(
                 str(i),
                 rocket.name,

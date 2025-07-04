@@ -57,10 +57,13 @@ class MoveSubmersibleAction(Action):
     dock: bool = False
     
     def __init__(self, player_id: int, submersible_name: str, 
-                 path: List[Position], workers: int = 1):
+                 path: List[Position] = None, workers: int = 1,
+                 excavate: bool = False, dock: bool = False):
         super().__init__(ActionType.MOVE_SUBMERSIBLE, player_id, workers)
         self.submersible_name = submersible_name
         self.path = path if path is not None else []
+        self.excavate = excavate
+        self.dock = dock
 
 @dataclass
 class ToggleLockAction(Action):
@@ -188,11 +191,15 @@ class ActionValidator:
             if action.workers_required < required:
                 return False, f"Need {required} workers to bump"
         
-        # Check electricity cost
+        # Check electricity cost (only if actually moving)
         if len(action.path) > 1:
             electricity_cost = len(action.path) - 1
             if player.electricity < electricity_cost:
                 return False, f"Need {electricity_cost} electricity"
+        
+        # Allow no movement if excavate or dock is specified
+        if len(action.path) == 0 and not (action.excavate or action.dock):
+            return False, "Must specify movement, excavation, or docking"
         
         return True, None
     
@@ -238,11 +245,13 @@ class ActionValidator:
         
         # If pollution_x not specified, check if current position is available
         if action.pollution_x == -1:
-            if self.game.board.atmosphere.get(vessel_pos.x, 0) > 0:
+            # Check center mineral column of current tile
+            current_mineral_x = vessel_pos.x * 3 + 1
+            if self.game.board.atmosphere.get(current_mineral_x, 0) > 0:
                 return False, "Current position already has pollution - specify another reachable position"
         else:
             # Check if specified position is reachable (same water level)
-            current_water_level = self.game.board.get_water_level_at_x(vessel_pos.x)
+            current_water_level = self.game.board.get_water_level_at_x(vessel_pos.x * 3 + 1)
             target_water_level = self.game.board.get_water_level_at_x(action.pollution_x)
             
             if current_water_level != target_water_level:
@@ -364,59 +373,78 @@ class ActionExecutor:
         player.place_workers(action.workers_required)
         self.game.worker_placements[f"sub_{sub_name}"] = (player.id, action.workers_required)
         
-        # Pay electricity cost
-        electricity_cost = max(0, len(action.path) - 1)
-        player.use_electricity(electricity_cost)
-        
-        # Move submersible and collect resources
-        collected = self.game.board.move_submersible(sub_name, action.path)
-        
-        # Give $1 per resource collected
-        player.add_money(len(collected))
-        
         result = {
             "success": True,
-            "message": f"{player.name} moved submersible {sub_name}",
-            "resources_collected": [r.value for r in collected]
+            "message": f"{player.name} took control of submersible {sub_name}",
         }
         
+        # Move submersible if path is provided
+        if len(action.path) > 0:
+            # Pay electricity cost
+            electricity_cost = max(0, len(action.path) - 1)
+            player.use_electricity(electricity_cost)
+            
+            # Move submersible and collect resources
+            collected = self.game.board.move_submersible(sub_name, action.path)
+            
+            # Give $1 per resource collected
+            player.add_money(len(collected))
+            
+            result["message"] = f"{player.name} moved submersible {sub_name}"
+            result["resources_collected"] = [r.value for r in collected]
+        
+        # Get current submersible position for excavate/dock
+        sub = self.game.board.submersibles[sub_name]
+        current_pos = sub.position if sub else None
+        
         # Check for excavation
-        if action.excavate:
-            final_pos = action.path[-1] if action.path else None
-            if final_pos:
-                deposit_info = self.game.board.get_deposit_below(final_pos)
-                if deposit_info:
-                    deposit_idx, deposit = deposit_info
-                    sub = self.game.board.submersibles[sub_name]
+        if action.excavate and current_pos:
+            deposit_info = self.game.board.get_deposit_below(current_pos)
+            if deposit_info:
+                deposit_idx, deposit = deposit_info
+                
+                if sub.has_space():
+                    # Excavate
+                    sub.load(deposit.resource_type)
+                    track_pos = deposit.excavate(player.id)
                     
-                    if sub.has_space():
-                        # Excavate
-                        sub.load(deposit.resource_type)
-                        track_pos = deposit.excavate(player.id)
+                    if track_pos is not None:
+                        vp = VP_EXCAVATION_TRACK[min(track_pos, len(VP_EXCAVATION_TRACK)-1)]
+                        player.add_victory_points(vp)
+                        result["excavated"] = deposit.resource_type.value
+                        result["vp_earned"] = vp
                         
-                        if track_pos is not None:
-                            vp = VP_EXCAVATION_TRACK[min(track_pos, len(VP_EXCAVATION_TRACK)-1)]
-                            player.add_victory_points(vp)
-                            result["excavated"] = deposit.resource_type.value
-                            result["vp_earned"] = vp
+                        # Special bonus at certain track positions
+                        if track_pos == 1:  # Second position
+                            # Add a resource of choice to cargo bay
+                            # For simplicity, give a random resource
+                            import random
+                            bonus_resource = random.choice(list(ResourceType))
+                            player.cargo_bay.add(bonus_resource)
+                            result["bonus_resource"] = bonus_resource.value
+                        elif track_pos == 3:  # Fourth position
+                            # Technology card (simplified)
+                            tech_card = f"Technology_{len(player.technology_cards) + 1}"
+                            discarded = player.add_technology_card(tech_card)
+                            result["technology_gained"] = tech_card
+                            if discarded:
+                                result["technology_discarded"] = discarded
         
         # Check for docking
-        if action.dock and self.game.board.is_submersible_at_surface(sub_name):
-            vessel_pos = self.game.board.vessel_positions.get(player.id)
-            sub = self.game.board.submersibles[sub_name]
+        if action.dock and self.game.board.is_submersible_below_vessel(sub_name, player.id):
+            # Dock and transfer cargo
+            cargo = sub.cargo.get_all()
+            cost = sum(cargo.values()) * DOCK_COST_PER_CUBE
             
-            if vessel_pos and sub.position.x == vessel_pos.x:
-                # Dock and transfer cargo
-                cargo = sub.cargo.get_all()
-                cost = sum(cargo.values()) * DOCK_COST_PER_CUBE
+            if player.spend_money(cost):
+                for resource_type, count in cargo.items():
+                    for _ in range(count):
+                        sub.cargo.transfer_to(player.cargo_bay, resource_type)
                 
-                if player.spend_money(cost):
-                    for resource_type, count in cargo.items():
-                        for _ in range(count):
-                            sub.cargo.transfer_to(player.cargo_bay, resource_type)
-                    
-                    result["docked"] = True
-                    result["cargo_transferred"] = cargo
+                result["docked"] = True
+                result["cargo_transferred"] = cargo
+            else:
+                result["dock_failed"] = f"Not enough money (need ${cost})"
         
         return result
     
@@ -481,12 +509,18 @@ class ActionExecutor:
         if player.use_diesel_engine():
             # Add to atmosphere at specified position (or current if not specified)
             vessel_pos = self.game.board.vessel_positions[player.id]
-            pollution_x = action.pollution_x if action.pollution_x != -1 else vessel_pos.x
+            
+            # If no position specified, use center mineral column of current tile
+            if action.pollution_x == -1:
+                pollution_x = vessel_pos.x * 3 + 1
+            else:
+                pollution_x = action.pollution_x
+            
             self.game.board.add_to_atmosphere(pollution_x)
             
             return {
                 "success": True,
-                "message": f"{player.name} used diesel engine for 6 electricity, placing pollution at x={pollution_x}"
+                "message": f"{player.name} used diesel engine for 6 electricity, placing pollution at mineral column {pollution_x}"
             }
         
         return {"success": False, "error": "Failed to use diesel engine"}

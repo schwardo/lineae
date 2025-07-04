@@ -1,5 +1,13 @@
 # All Bugs Fixed ✓
 
+All bugs have been successfully fixed in this session. The game now correctly implements:
+- Surface vessels on tile columns (0-7) with proper docking positions
+- Submersibles at the correct starting positions
+- Empty ocean spaces displayed as "__"
+- Locks displayed as separate columns between mineral columns
+- Rockets with 5 total slots including 1 wildcard
+- Submersible actions allowing excavate/dock without movement
+
 ## Previously Fixed Bugs
 
 [x] While moving submersibles, there should be no Stay option.
@@ -36,12 +44,32 @@
     - Single atmosphere layer implemented (no stacking)
     - Diesel engine validation checks for available reachable positions
 
-[ ] Surface vessel's locations are tile columns and not mineral columns.  This means that there are only 8 starting locations to choose from, and there are 3 possible locations that a submersible can be below a surface vessel for docking.
-[ ] Submersible starting locations are X=3,6,10,13,17,20 and Y=7.
-[ ] Empty mineral spaces in the ocean should be displayed as __ rather than blank spaces.
-[ ] The four locks are located between X=2-3, 8-9. 14-15, and 20-21.  Display them as an extra column on the grid but don't change the current X coordinates.  Submersibles can move across them but they don't count as a space for movement rules.
-[ ] All rockets have 5 mineral cube spaces.  One of them is always a wildcard spot that can contain any mineral cube.
-[ ] If you choose the move submersible action, you may choose not to move the submersible but still excavate or dock.
+[x] Surface vessel's locations are tile columns and not mineral columns.  This means that there are only 8 starting locations to choose from, and there are 3 possible locations that a submersible can be below a surface vessel for docking.
+    - Surface vessels now use tile columns (0-7) instead of mineral columns (0-23)
+    - Vessels are displayed at the center mineral column of their tile (tile_x * 3 + 1)
+    - Submersibles in any of the 3 mineral columns of a tile can dock with the vessel on that tile
+    - Water level checking uses the middle mineral column of each tile
+
+[x] Submersible starting locations are X=3,6,10,13,17,20 and Y=7.
+    - Updated INITIAL_SUBMERSIBLE_POSITIONS in constants.py
+
+[x] Empty mineral spaces in the ocean should be displayed as __ rather than blank spaces.
+    - Updated display.py to show "__" for empty mineral spaces
+
+[x] The four locks are located between X=2-3, 8-9. 14-15, and 20-21.  Display them as an extra column on the grid but don't change the current X coordinates.  Submersibles can move across them but they don't count as a space for movement rules.
+    - Updated LOCK_POSITIONS to [2, 8, 14, 20]
+    - Modified display to show locks as separate columns between mineral columns
+    - Locks are displayed with lock symbols between the specified columns
+
+[x] All rockets have 5 mineral cube spaces.  One of them is always a wildcard spot that can contain any mineral cube.
+    - Updated rocket generation to always create 5-cube rockets (4 specific + 1 wildcard)
+    - Modified Rocket class to track wildcard slot separately
+    - Updated display to show wildcard slot status
+
+[x] If you choose the move submersible action, you may choose not to move the submersible but still excavate or dock.
+    - Updated MoveSubmersibleAction to support excavate/dock without movement
+    - Modified validation to allow zero-length paths if excavate or dock is specified
+    - Updated execution logic to handle excavation and docking without movement
 
 ## Additional Improvements
 
