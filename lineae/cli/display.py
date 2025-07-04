@@ -135,7 +135,8 @@ def display_board(game: Game) -> None:
     grid.append(deposit_row)
     
     # Create table
-    table = Table(show_header=False, show_edge=True, padding=0, box_chars={"mid": "-"})
+#    table = Table(show_header=False, show_edge=True, padding=0, box_chars={"mid": "-"})
+    table = Table(show_header=False, show_edge=True, padding=0)
     for _ in range(BOARD_WIDTH + 1):  # +1 for row labels
         table.add_column(width=3)
     
