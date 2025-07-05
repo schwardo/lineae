@@ -52,7 +52,16 @@ class GameSimulator:
         
         # Initialize game
         game = Game(player_names)
-        game.setup_game()
+        
+        # Choose vessel positions for simulation
+        # Distribute players evenly across the board (8 tiles wide)
+        vessel_positions = {}
+        num_players = len(player_names)
+        spacing = 8 // num_players
+        for i in range(num_players):
+            vessel_positions[i] = i * spacing
+        
+        game.setup_game(vessel_positions)
         
         # Log game start
         self.logger.log_game_start(game_id, player_configs, {
