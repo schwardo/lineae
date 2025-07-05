@@ -100,7 +100,8 @@ def display_board(game: Game) -> None:
                     vessel_display_x = vessel_pos.x * 3 + 1
                     if vessel_display_x == x:
                         player = game.get_player(player_id)
-                        cell += f"[bold]{SYMBOLS['vessel']}[/]"
+                        # Add player label to vessel
+                        cell += f"[bold]{SYMBOLS['vessel']}P{player_id}[/]"
             
             # Check for water
             if pos.has_water:
@@ -308,8 +309,8 @@ def display_mineral_deposits(game: Game) -> None:
             dissolve_str = f"[{primary_color}]{primary_abbrev}[/]/[{secondary_color}]{secondary_abbrev}[/] x2"
             
             # Format excavation resource
-            excavate_color = RICH_COLORS[deposit.resource_type]
-            excavate_abbrev = RESOURCE_ABBREVIATIONS[deposit.resource_type]
+            excavate_color = RICH_COLORS[deposit.excavation_type]
+            excavate_abbrev = RESOURCE_ABBREVIATIONS[deposit.excavation_type]
             excavate_str = f"[{excavate_color}]{excavate_abbrev}[/]"
             
             # Format setup bonus

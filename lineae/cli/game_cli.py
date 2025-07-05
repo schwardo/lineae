@@ -368,13 +368,28 @@ class GameCLI:
             else:
                 self.console.print(f"\nMove {i+1} (costs 1 electricity):")
             
+            # Show current submersible cargo
+            cargo_items = []
+            for resource_type, count in sub.cargo.get_all().items():
+                if count > 0:
+                    color = RICH_COLORS[resource_type]
+                    abbrev = RESOURCE_ABBREVIATIONS[resource_type]
+                    for _ in range(count):
+                        cargo_items.append(f"[{color}]{abbrev}[/]")
+            # Show empty slots
+            empty_slots = SUBMERSIBLE_CAPACITY - sub.cargo.total()
+            for _ in range(empty_slots):
+                cargo_items.append("__")
+            
+            self.console.print(f"Current cargo: {' '.join(cargo_items)}")
+            
             # Show valid moves
             valid_moves = []
             directions = [
-                ("Up", Position(current_pos.x, current_pos.y - 1)),
-                ("Down", Position(current_pos.x, current_pos.y + 1)),
-                ("Left", Position(current_pos.x - 1, current_pos.y)),
-                ("Right", Position(current_pos.x + 1, current_pos.y)),
+                ("U(p)", Position(current_pos.x, current_pos.y - 1)),
+                ("D(own)", Position(current_pos.x, current_pos.y + 1)),
+                ("L(eft)", Position(current_pos.x - 1, current_pos.y)),
+                ("R(ight)", Position(current_pos.x + 1, current_pos.y)),
             ]
             
             for direction, pos in directions:
@@ -393,7 +408,7 @@ class GameCLI:
                     deposit_info = self.game.board.get_deposit_below(pos)
                     if deposit_info:
                         info.append("can excavate")
-                if pos.y == 0 and space.has_water:
+                if (pos.y == 0 and space.has_water) or pos.y == 1:  # Surface (row 0 or 1)
                     info.append("surface")
                 
                 info_str = f" ({', '.join(info)})" if info else ""
@@ -432,7 +447,7 @@ class GameCLI:
                     action.excavate = True
         
         # Check docking
-        if final_pos.y == 0 and self.game.board.ocean[final_pos].has_water:
+        if (final_pos.y == 0 and self.game.board.ocean[final_pos].has_water) or final_pos.y == 1:
             if self.game.board.is_submersible_below_vessel(sub_name, player_id) and not sub.is_empty():
                 if Confirm.ask(f"Dock with vessel? (costs ${sub.cargo.total()})?"):
                     action.dock = True
