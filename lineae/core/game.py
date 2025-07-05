@@ -228,8 +228,7 @@ class Game:
                     valid_actions.append("LOAD_ROCKET")
             
             # Submersibles
-            if player.electricity > 0:
-                valid_actions.append("MOVE_SUBMERSIBLE")
+            valid_actions.append("MOVE_SUBMERSIBLE")
         
         # Vessel movement (free)
         valid_actions.append("MOVE_VESSEL")

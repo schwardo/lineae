@@ -329,7 +329,8 @@ class Board:
                     break
                     
                 x = i * 6 + col
-                # Determine which resource type based on alternating pattern
+                # Determine which resource type based on alternating COLUMN pattern
+                # Each column has a consistent mineral type throughout
                 if col % 2 == 0:
                     resource_type = deposit.resource_type
                 else:
@@ -368,9 +369,9 @@ class Board:
         if not sub.position:
             return False
         
-        # Check if at top row with water
-        return (sub.position.y == 0 and 
-                self.ocean[sub.position].has_water)
+        # Check if at top row with water OR row 1 (considered surface for docking)
+        return ((sub.position.y == 0 and self.ocean[sub.position].has_water) or
+                sub.position.y == 1)
     
     def is_submersible_below_vessel(self, sub_name: str, player_id: int) -> bool:
         """Check if submersible is below a player's vessel (for docking)."""

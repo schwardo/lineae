@@ -169,6 +169,10 @@ class MineralDeposit:
         self.setup_bonus = setup_bonus
         self.excavation_track = []  # List of player IDs on track
         
+        # Excavation type - what resource is excavated (can be different from main type)
+        # Choose a random resource type for excavation
+        self.excavation_type = random.choice(list(ResourceType))
+        
         # Second resource type for alternating pattern
         # Choose a different resource type
         other_types = [t for t in ResourceType if t != resource_type]

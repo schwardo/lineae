@@ -354,7 +354,8 @@ class ActionExecutor:
         if self.game.board.move_vessel(player.id, action.new_x):
             return {
                 "success": True,
-                "message": f"{player.name} moved vessel to x={action.new_x}"
+                "message": f"{player.name} moved vessel to x={action.new_x}",
+                "immediate_action": True
             }
         
         return {"success": False, "error": "Invalid vessel movement"}
@@ -405,13 +406,13 @@ class ActionExecutor:
                 
                 if sub.has_space():
                     # Excavate
-                    sub.load(deposit.resource_type)
+                    sub.load(deposit.excavation_type)
                     track_pos = deposit.excavate(player.id)
                     
                     if track_pos is not None:
                         vp = VP_EXCAVATION_TRACK[min(track_pos, len(VP_EXCAVATION_TRACK)-1)]
                         player.add_victory_points(vp)
-                        result["excavated"] = deposit.resource_type.value
+                        result["excavated"] = deposit.excavation_type.value
                         result["vp_earned"] = vp
                         
                         # Special bonus at certain track positions
@@ -429,6 +430,10 @@ class ActionExecutor:
                             result["technology_gained"] = tech_card
                             if discarded:
                                 result["technology_discarded"] = discarded
+                    else:
+                        # Track is full, but we still excavated the resource
+                        result["excavated"] = deposit.excavation_type.value
+                        result["message"] = "Excavated resource but track is full (no VP)"
         
         # Check for docking
         if action.dock and self.game.board.is_submersible_below_vessel(sub_name, player.id):
